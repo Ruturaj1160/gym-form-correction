@@ -82,6 +82,10 @@ export class Workout {
     if (this.phase === "rest") this.startNextSet(now);
   }
 
+  extendRest(ms: number): void {
+    if (this.phase === "rest") this.restEndsAt += ms;
+  }
+
   /** Ends early, keeping the in-progress set if it has any work in it. */
   end(now: number): void {
     if (this.phase === "active" && this.hasWork()) this.recordSet(now);

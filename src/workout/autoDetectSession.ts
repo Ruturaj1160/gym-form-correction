@@ -2,15 +2,24 @@ import type { NormalizedLandmark } from "@mediapipe/tasks-vision";
 import { FeatureWindow, frameFeatures, MIN_MOTION } from "../engine/features";
 import { KnnRecognizer } from "../engine/recognizer";
 import type { ExerciseDef } from "../engine/types";
-import { clearSamples, loadSamples } from "../storage/training";
-import type { Banner } from "../ui/banner";
+import { loadSamples } from "../storage/training";
 
 const PREDICT_EVERY_MS = 500;
 const MIN_CONFIDENCE = 0.6;
 // Consecutive agreeing predictions before offering to start.
 const STREAK = 3;
 
-/** Classifies the live movement with k-NN and offers to start the detected exercise. */
+export type AutoDetectStatus = "no-data" | "waiting" | "unsure" | "detecting";
+
+export interface AutoDetectView {
+  status: AutoDetectStatus;
+  trainedCount: number;
+  prediction: { exercise: ExerciseDef; confidence: number } | null;
+  /** Set once the same exercise has been predicted consistently. */
+  ready: ExerciseDef | null;
+}
+
+/** Classifies the live movement with k-NN. UI-agnostic: read state via `view`. */
 export class AutoDetectSession {
   private readonly window = new FeatureWindow();
   private readonly recognizer: KnnRecognizer | null = null;
@@ -18,85 +27,56 @@ export class AutoDetectSession {
   private lastPredictAt = 0;
   private streakLabel: string | null = null;
   private streak = 0;
-  private offered: string | null = null;
+  view: AutoDetectView;
 
-  constructor(
-    private readonly banner: Banner,
-    exercises: ExerciseDef[],
-    private readonly onPick: (exercise: ExerciseDef) => void,
-    private readonly onClose: () => void,
-  ) {
+  constructor(exercises: ExerciseDef[]) {
     this.byId = new Map(exercises.map((e) => [e.id, e]));
     const samples = loadSamples().filter((s) => this.byId.has(s.label));
-
-    if (!samples.length) {
-      banner.show(
-        "Auto-detect",
-        'No training data yet. Run workouts with "Record pose data" enabled for each exercise you want detected.',
-        [["Close", onClose, true]],
-      );
-      return;
-    }
-
-    this.recognizer = new KnnRecognizer(samples);
-    const n = this.recognizer.labels.length;
-    banner.show(
-      "Auto-detect",
-      n < 2
-        ? "Only 1 exercise trained — record more exercises for useful detection. Start moving…"
-        : `Trained on ${n} exercises. Start moving…`,
-      this.idleActions(),
-    );
+    if (samples.length) this.recognizer = new KnnRecognizer(samples);
+    this.view = {
+      status: this.recognizer ? "waiting" : "no-data",
+      trainedCount: this.recognizer?.labels.length ?? 0,
+      prediction: null,
+      ready: null,
+    };
   }
 
-  update(landmarks: NormalizedLandmark[], aspect: number, now: number): void {
-    if (!this.recognizer) return;
+  /** Returns true when the view changed. */
+  update(
+    landmarks: NormalizedLandmark[],
+    aspect: number,
+    now: number,
+  ): boolean {
+    if (!this.recognizer) return false;
     this.window.push(frameFeatures(landmarks, aspect), now);
-    if (now - this.lastPredictAt < PREDICT_EVERY_MS) return;
+    if (now - this.lastPredictAt < PREDICT_EVERY_MS) return false;
     this.lastPredictAt = now;
 
     const w = this.window.compute();
-    if (!w) return;
+    if (!w) return false;
     if (w.motion < MIN_MOTION) {
       this.streak = 0;
-      if (!this.offered) this.banner.setText("Start moving…");
-      return;
+      return this.setView({ status: "waiting", prediction: null });
     }
 
     const p = this.recognizer.predict(w.vector);
-    const ex = p && this.byId.get(p.label);
-    if (!p || !ex || p.confidence < MIN_CONFIDENCE) {
+    const exercise = p && this.byId.get(p.label);
+    if (!p || !exercise || p.confidence < MIN_CONFIDENCE) {
       this.streak = 0;
-      if (!this.offered) this.banner.setText("Not sure yet — keep going…");
-      return;
+      return this.setView({ status: "unsure", prediction: null });
     }
 
     this.streak = p.label === this.streakLabel ? this.streak + 1 : 1;
     this.streakLabel = p.label;
-    this.banner.setText(
-      `Looks like: ${ex.name} (${Math.round(p.confidence * 100)}%)`,
-    );
-
-    if (this.streak >= STREAK && this.offered !== ex.id) {
-      this.offered = ex.id;
-      this.banner.setActions([
-        ["Cancel", this.onClose],
-        [`Start ${ex.name}`, () => this.onPick(ex), true],
-      ]);
-    }
+    return this.setView({
+      status: "detecting",
+      prediction: { exercise, confidence: p.confidence },
+      ...(this.streak >= STREAK ? { ready: exercise } : {}),
+    });
   }
 
-  private idleActions(): [string, () => void][] {
-    return [
-      [
-        "Clear training data",
-        () => {
-          if (!confirm("Delete all auto-detect training data?")) return;
-          clearSamples();
-          this.onClose();
-        },
-      ],
-      ["Cancel", this.onClose],
-    ];
+  private setView(patch: Partial<AutoDetectView>): true {
+    this.view = { ...this.view, ...patch };
+    return true;
   }
 }

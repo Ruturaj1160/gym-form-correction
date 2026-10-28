@@ -35,3 +35,14 @@ export function slugify(name: string): string {
     .slice(0, 40);
   return `${CUSTOM_PREFIX}${slug || "exercise"}`;
 }
+
+/** Keeps imported/edited ids in the custom namespace so built-ins can't be overwritten. */
+export function toCustomId(id: string): string {
+  return id.startsWith(CUSTOM_PREFIX) ? id : `${CUSTOM_PREFIX}${id}`;
+}
+
+export function uniqueId(base: string, taken: Set<string>): string {
+  let id = base;
+  for (let n = 2; taken.has(id); n++) id = `${base}-${n}`;
+  return id;
+}

@@ -2,6 +2,7 @@ import {
   PoseLandmarker,
   type NormalizedLandmark,
 } from "@mediapipe/tasks-vision";
+import { BRAND } from "../app/brand";
 import { isVisible } from "../pose/landmarks";
 
 // Skip face points 1-10; nose is enough for the skeleton.
@@ -31,7 +32,7 @@ export class Overlay {
     const h = canvas.height;
 
     ctx.lineWidth = 4;
-    ctx.strokeStyle = "rgba(0, 220, 255, 0.9)";
+    ctx.strokeStyle = BRAND.skeleton;
     for (const { start, end } of PoseLandmarker.POSE_CONNECTIONS) {
       const a = landmarks[start];
       const b = landmarks[end];
@@ -43,7 +44,7 @@ export class Overlay {
       ctx.stroke();
     }
 
-    ctx.fillStyle = "#fff";
+    ctx.fillStyle = BRAND.joint;
     landmarks.forEach((lm, i) => {
       if (FACE_DETAIL.has(i) || !isVisible(lm)) return;
       ctx.beginPath();
@@ -53,7 +54,10 @@ export class Overlay {
   }
 
   /** Draws the tracked limb chain (e.g. hip→knee→ankle) on top of the skeleton. */
-  drawHighlight(points: NormalizedLandmark[], color = "#facc15"): void {
+  drawHighlight(
+    points: NormalizedLandmark[],
+    color: string = BRAND.primary,
+  ): void {
     if (points.length < 2) return;
     const { ctx, canvas } = this;
     const w = canvas.width;

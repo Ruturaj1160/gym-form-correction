@@ -203,50 +203,50 @@ src/
 ## 7. Migration phases
 
 ### R1 — Foundation
-- [ ] Add deps: `react`, `react-dom`, `@vitejs/plugin-react`, `@mui/material`, `@emotion/react`, `@emotion/styled`, `@mui/icons-material`, `@fontsource/roboto`, types
-- [ ] `vite.config.ts` with React plugin; `tsconfig` `jsx: react-jsx`
-- [ ] `theme.ts`, `CssBaseline`, app shell (AppBar + responsive navigation)
-- [ ] `ScreenContext`, `SnackbarContext`, `ConfirmDialog`
+- [x] Add deps: `react`, `react-dom`, `@vitejs/plugin-react`, `@mui/material`, `@emotion/react`, `@emotion/styled`, `@mui/icons-material`, `@fontsource/roboto`, types
+- [x] `vite.config.ts` with React plugin; `tsconfig` `jsx: react-jsx`
+- [x] `theme.ts`, `CssBaseline`, app shell (AppBar + responsive navigation)
+- [x] `ScreenContext`, `SnackbarContext`, `ConfirmDialog`
 
 ### R2 — Camera & live workout
-- [ ] `CameraProvider` (port camera + detector + loop from `main.ts`)
-- [ ] `CameraStage` (full-bleed video + overlay canvas)
-- [ ] `useWorkout` external store
-- [ ] `WorkoutScreen`: top bar, `RepRing`, `FeedbackPill`, stat chips, action bar, hold variant
-- [ ] Camera-permission and model-loading states
+- [x] `CameraProvider` (port camera + detector + loop from `main.ts`)
+- [x] `CameraStage` (full-bleed video + overlay canvas)
+- [x] `useWorkout` external store
+- [x] `WorkoutScreen`: top bar, `RepRing`, `FeedbackPill`, stat chips, action bar, hold variant
+- [x] Camera-permission and model-loading states
 
 ### R3 — Library & setup
-- [ ] `LibraryScreen` with search, category chips, `ExerciseCard` grid
-- [ ] `SetupDialog` with validation, switches, calibration card
+- [x] `LibraryScreen` with search, category chips, `ExerciseCard` grid
+- [x] `SetupDialog` with validation, switches, calibration card
 
 ### R4 — Rest & summary
-- [ ] `RestScreen` with countdown ring, +15 s, previous set card
-- [ ] `SummaryScreen` with stat tiles, set table, recording card
+- [x] `RestScreen` with countdown ring, +15 s, previous set card
+- [x] `SummaryScreen` with stat tiles, set table, recording card
 
 ### R5 — History
-- [ ] Add `@mui/x-charts`
-- [ ] `HistoryScreen` with filters, Bar + Line chart, expandable session list, clear dialog
+- [x] Add `@mui/x-charts`
+- [x] `HistoryScreen` with filters, Bar + Line chart, expandable session list, clear dialog
 
 ### R6 — Custom exercises
-- [ ] `CustomScreen` list + toolbar
-- [ ] `ExerciseEditorDialog` stepper with `JointPicker` diagram
-- [ ] JSON tab, import/export with snackbar results
+- [x] `CustomScreen` list + toolbar
+- [x] `ExerciseEditorDialog` stepper with `JointPicker` diagram
+- [x] JSON tab, import/export with snackbar results
 
 ### R7 — Calibration, auto-detect, settings
-- [ ] `CalibrationScreen` and `AutoDetectScreen` floating cards
-- [ ] `SettingsScreen` (model, theme mode, defaults, data management)
-- [ ] Low-FPS snackbar with switch action
+- [x] `CalibrationScreen` and `AutoDetectScreen` floating cards
+- [x] `SettingsScreen` (model, theme mode, defaults, data management)
+- [x] Low-FPS snackbar with switch action
 
 ### R8 — Polish
-- [ ] Responsive pass: phone portrait (camera on floor), tablet, desktop
-- [ ] Accessibility: focus order, `aria-live` reps, contrast check, keyboard shortcuts (Space = finish set, Esc = end)
-- [ ] Empty / error states everywhere
-- [ ] Reduced-motion support
+- [x] Responsive pass: phone portrait (camera on floor), tablet, desktop — checked in browser at mobile and desktop widths; not yet on a real phone
+- [x] Accessibility: focus order, `aria-live` reps, contrast check, keyboard shortcuts (Space = finish set, Esc = end)
+- [x] Empty / error states everywhere
+- [x] Reduced-motion support
 
 ### R9 — Cleanup
-- [ ] Delete `src/ui/*` (old DOM UI) and `src/style.css`
-- [ ] Shrink `src/main.ts` to `createRoot(...).render(<App />)`
-- [ ] Bundle size check; lazy-load History / Custom / Settings screens
+- [x] Delete `src/ui/*` (old DOM UI) and `src/style.css`
+- [x] Shrink `src/main.ts` to `createRoot(...).render(<App />)` (now `src/main.tsx`)
+- [x] Bundle size check; lazy-load History / Custom / Settings screens
 
 ---
 
@@ -269,3 +269,42 @@ src/
 - No `confirm()` / `alert()`; all feedback via Dialog / Snackbar.
 - Live workout holds the same FPS as before the revamp.
 - Lighthouse accessibility score ≥ 90.
+
+---
+
+## 10. Implementation notes, decisions & open questions
+
+### Installed versions
+React 19, MUI 9 (`@mui/material`, `@mui/icons-material`), `@mui/x-charts` 9, `@vitejs/plugin-react` 6, Roboto via `@fontsource`.
+
+### Decisions made during the migration
+| # | Decision | Why |
+| --- | --- | --- |
+| D1 | Engine core lives in `src/camera/engine.ts` (`AppEngine`), a plain TS class; `CameraProvider` just creates it once and starts it | Keeps the pose loop fully outside React, as the plan's performance rules require |
+| D2 | `CalibrationSession` and `AutoDetectSession` (in `src/workout/`) were refactored to expose state (`view`) instead of driving the old DOM banner | They depended on `src/ui/banner.ts`, which R9 deletes. Logic is unchanged |
+| D3 | `Workout.extendRest()` added | Needed for the new **+15 s** rest button |
+| D4 | `overlay.ts` moved to `src/camera/`, `voice.ts` to `src/workout/` (via `git mv`) | They're engine-side, not DOM UI, and `src/ui/` was deleted |
+| D5 | Overlay and theme share colours from `src/app/brand.ts` | Joint highlights always match the theme |
+| D6 | Pose detection is **paused while browsing** (library/history/settings) and only runs in workout, calibration or auto-detect | Saves CPU and battery. Camera stream stays open so starting is instant |
+| D7 | Model loading shows an inline status on the Train tab and a progress bar in the AppBar instead of a full-screen `Backdrop` | A backdrop would block History/Settings, which don't need the camera |
+| D8 | Camera permission denied shows a full-page state on the **Train** tab only; other tabs keep working | You can still look at history without a camera |
+| D9 | Exercise editor dialog is full-screen on phones/tablets and a large dialog on desktop | A full-screen dialog on a wide monitor felt empty |
+| D10 | Skipped `usePoseFrame.ts` from the architecture list | No component needs raw landmarks; the skeleton is drawn imperatively on the canvas |
+| D11 | Light mode uses a darker amber (`#a15c00`) as primary | Bright amber text on white fails contrast |
+| D12 | Theme mode added to `AppSettings` (`themeMode`) and `clearAllCalibrations()` added to storage | Needed by the Settings screen |
+| D13 | Custom-exercise id helpers (`toCustomId`, `uniqueId`) moved into `storage/customExercises.ts` | Shared by the editor and the importer |
+
+### Verified
+- `npm run build` passes (typecheck + bundle).
+- Smoke-tested in a browser: library → setup dialog → workout → finish set → rest (+15 s, skip) → set 2 → end-workout confirm → summary → history chart → custom exercise 4-step editor save → settings; dark and light themes. No runtime errors.
+
+### Not yet verified
+- Real rep counting with a person in front of the camera (the test browser had a camera but nobody exercising).
+- Real phone in portrait mode, voice callouts, pose-recording download.
+- Lighthouse accessibility score.
+
+### Open questions for you
+1. **Bundle size** — the main chunk is ~550 KB (~170 KB gzipped): React + MUI core + MediaPipe JS. History (charts) is lazy-loaded (~100 KB gzipped). Is this acceptable, or should I split vendors further / lazy-load the setup dialog?
+2. **App name** — I used "Gym Form Correction" (from the README) in the AppBar and page title. Keep it, or do you have a product name?
+3. **Git branch** — `git branch -m feature/revamp-ui` *renamed* your local `main` rather than creating a new branch. `origin/main` is fine, but you no longer have a local `main`. If that wasn't intended, run `git branch main origin/main` to recreate it.
+4. **Dev-only warning** — Vite Fast Refresh does a full reload when editing files that export both a provider and its hook (`CameraProvider`, `ScreenContext`, `SnackbarContext`, `ConfirmDialog`). Harmless; I can split them into separate files if it bothers you.

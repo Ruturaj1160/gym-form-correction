@@ -33,3 +33,7 @@ export function clearCalibration(exerciseId: string): void {
   delete all[exerciseId];
   writeJson(KEY, all);
 }
+
+export function clearAllCalibrations(): void {
+  localStorage.removeItem(KEY);
+}
