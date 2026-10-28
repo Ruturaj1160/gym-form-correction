@@ -25,7 +25,8 @@ jobs:
           node-version: 22
           cache: npm
 
-      - run: npm ci
+      # The lockfile points at a private feed (author's local npm setup); CI fetches the same packages from public npm.
+      - run: npm ci --registry=https://registry.npmjs.org/ --replace-registry-host=always
       - run: npm run build
 
       - uses: actions/configure-pages@v5
