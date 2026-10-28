@@ -25,8 +25,11 @@ jobs:
           node-version: 22
           cache: npm
 
-      # The lockfile points at a private feed (author's local npm setup); CI fetches the same packages from public npm.
-      - run: npm ci --registry=https://registry.npmjs.org/ --replace-registry-host=always
+      # The lockfile points at a private feed (author's local npm setup); on the runner only,
+      # rewrite those URLs to public npm, which hosts the same packages.
+      - name: Use public npm registry
+        run: sed -i 's#https://kochag.pkgs.visualstudio.com/_packaging/KochAg/npm/registry/#https://registry.npmjs.org/#g' package-lock.json
+      - run: npm ci --registry=https://registry.npmjs.org/
       - run: npm run build
 
       - uses: actions/configure-pages@v5
