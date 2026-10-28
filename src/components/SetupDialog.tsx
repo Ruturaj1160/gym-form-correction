@@ -43,7 +43,14 @@ function parseIntInRange(v: string, min: number, max: number): number | null {
   return n >= min && n <= max ? n : null;
 }
 
-function NumberField({ label, value, onChange, min, max, unit }: NumberFieldProps) {
+function NumberField({
+  label,
+  value,
+  onChange,
+  min,
+  max,
+  unit,
+}: NumberFieldProps) {
   const invalid = parseIntInRange(value, min, max) === null;
   return (
     <TextField
@@ -54,7 +61,9 @@ function NumberField({ label, value, onChange, min, max, unit }: NumberFieldProp
       error={invalid}
       helperText={invalid ? `${min}–${max}` : " "}
       slotProps={{
-        input: { endAdornment: <InputAdornment position="end">{unit}</InputAdornment> },
+        input: {
+          endAdornment: <InputAdornment position="end">{unit}</InputAdornment>,
+        },
         htmlInput: { min, max, inputMode: "numeric" },
       }}
       fullWidth
@@ -74,7 +83,11 @@ function CalibrationCard({
   return (
     <Card>
       <CardContent>
-        <Stack direction={{ xs: "column", sm: "row" }} spacing={2} sx={{ alignItems: { sm: "center" } }}>
+        <Stack
+          direction={{ xs: "column", sm: "row" }}
+          spacing={2}
+          sx={{ alignItems: { sm: "center" } }}
+        >
           <TuneIcon color={cal ? "success" : "action"} />
           <Box sx={{ flex: 1 }}>
             <Typography variant="subtitle2">
@@ -82,7 +95,8 @@ function CalibrationCard({
             </Typography>
             <Typography variant="body2" color="text.secondary">
               {fmtValue(start)} → {fmtValue(target)}
-              {cal && ` · calibrated ${new Date(cal.calibratedAt).toLocaleDateString()}`}
+              {cal &&
+                ` · calibrated ${new Date(cal.calibratedAt).toLocaleDateString()}`}
             </Typography>
           </Box>
           <Stack direction="row" spacing={1}>
@@ -106,7 +120,13 @@ function CalibrationCard({
   );
 }
 
-function SetupForm({ exercise, message }: { exercise: ExerciseDef; message?: SetupMessage }) {
+function SetupForm({
+  exercise,
+  message,
+}: {
+  exercise: ExerciseDef;
+  message?: SetupMessage;
+}) {
   const engine = useEngine();
   const camera = useCamera();
   const prefs = usePrefs();
@@ -114,13 +134,17 @@ function SetupForm({ exercise, message }: { exercise: ExerciseDef; message?: Set
   const isHold = exercise.type === "hold";
 
   const [sets, setSets] = useState(String(prefs.sets));
-  const [target, setTarget] = useState(String(isHold ? prefs.targetHoldSec : prefs.targetReps));
+  const [target, setTarget] = useState(
+    String(isHold ? prefs.targetHoldSec : prefs.targetReps),
+  );
   const [rest, setRest] = useState(String(prefs.restSec));
   const [voice, setVoice] = useState(prefs.voice);
   const [record, setRecord] = useState(prefs.record);
 
   const setsN = parseIntInRange(sets, 1, 10);
-  const targetN = isHold ? parseIntInRange(target, 5, 600) : parseIntInRange(target, 1, 100);
+  const targetN = isHold
+    ? parseIntInRange(target, 5, 600)
+    : parseIntInRange(target, 1, 100);
   const restN = parseIntInRange(rest, 0, 600);
   const valid = setsN !== null && targetN !== null && restN !== null;
   const ready = camera.status === "ready";
@@ -146,7 +170,12 @@ function SetupForm({ exercise, message }: { exercise: ExerciseDef; message?: Set
     engine.startCalibration(exercise, voice, (text, outcome) =>
       openSetup(exercise, {
         text,
-        severity: outcome === "saved" ? "success" : outcome === "failed" ? "warning" : "info",
+        severity:
+          outcome === "saved"
+            ? "success"
+            : outcome === "failed"
+              ? "warning"
+              : "info",
       }),
     );
   };
@@ -167,31 +196,74 @@ function SetupForm({ exercise, message }: { exercise: ExerciseDef; message?: Set
               gridTemplateColumns: `repeat(auto-fit, minmax(${t.spacing(18)}, 1fr))`,
             })}
           >
-            <NumberField label="Sets" value={sets} onChange={setSets} min={1} max={10} unit="sets" />
+            <NumberField
+              label="Sets"
+              value={sets}
+              onChange={setSets}
+              min={1}
+              max={10}
+              unit="sets"
+            />
             {isHold ? (
-              <NumberField label="Hold" value={target} onChange={setTarget} min={5} max={600} unit="s" />
+              <NumberField
+                label="Hold"
+                value={target}
+                onChange={setTarget}
+                min={5}
+                max={600}
+                unit="s"
+              />
             ) : (
-              <NumberField label="Reps per set" value={target} onChange={setTarget} min={1} max={100} unit="reps" />
+              <NumberField
+                label="Reps per set"
+                value={target}
+                onChange={setTarget}
+                min={1}
+                max={100}
+                unit="reps"
+              />
             )}
-            <NumberField label="Rest" value={rest} onChange={setRest} min={0} max={600} unit="s" />
+            <NumberField
+              label="Rest"
+              value={rest}
+              onChange={setRest}
+              min={0}
+              max={600}
+              unit="s"
+            />
           </Box>
 
           <Stack>
             <FormControlLabel
-              control={<Switch checked={voice} onChange={(e) => setVoice(e.target.checked)} />}
+              control={
+                <Switch
+                  checked={voice}
+                  onChange={(e) => setVoice(e.target.checked)}
+                />
+              }
               label="Voice callouts"
             />
             <FormControlLabel
-              control={<Switch checked={record} onChange={(e) => setRecord(e.target.checked)} />}
+              control={
+                <Switch
+                  checked={record}
+                  onChange={(e) => setRecord(e.target.checked)}
+                />
+              }
               label="Record pose data"
             />
             <FormHelperText sx={{ mt: 0, ml: 6 }}>
-              Teaches auto-detect this exercise and lets you download the pose data.
+              Teaches auto-detect this exercise and lets you download the pose
+              data.
             </FormHelperText>
           </Stack>
 
           {exercise.type === "reps" && (
-            <CalibrationCard key={exercise.id} exercise={exercise} onCalibrate={calibrate} />
+            <CalibrationCard
+              key={exercise.id}
+              exercise={exercise}
+              onCalibrate={calibrate}
+            />
           )}
 
           {!ready && (

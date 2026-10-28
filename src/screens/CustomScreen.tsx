@@ -28,7 +28,10 @@ import { EmptyState } from "../components/EmptyState";
 import { ExerciseEditorDialog } from "../components/ExerciseEditorDialog";
 import type { ExerciseDef } from "../engine/types";
 import { validateExercise } from "../engine/validate";
-import { refreshCustomExercises, useCustomExercises } from "../hooks/useCustomExercises";
+import {
+  refreshCustomExercises,
+  useCustomExercises,
+} from "../hooks/useCustomExercises";
 import {
   deleteCustomExercise,
   saveCustomExercise,
@@ -40,16 +43,22 @@ const MAX_IMPORT_BYTES = 1_000_000;
 const MAX_IMPORT_ITEMS = 200;
 
 function exportExercises(list: ExerciseDef[]): void {
-  downloadJson(list.length === 1 ? `${list[0].id}.json` : "custom-exercises.json", {
-    format: "gym-rep-counter/exercises",
-    version: 1,
-    exercises: list,
-  });
+  downloadJson(
+    list.length === 1 ? `${list[0].id}.json` : "custom-exercises.json",
+    {
+      format: "gym-rep-counter/exercises",
+      version: 1,
+      exercises: list,
+    },
+  );
 }
 
 /** Parses an import file. Accepts a single exercise, an array, or { exercises: [...] }. */
-async function importFile(file: File): Promise<{ imported: number; errors: string[] }> {
-  if (file.size > MAX_IMPORT_BYTES) return { imported: 0, errors: ["File too large (max 1 MB)."] };
+async function importFile(
+  file: File,
+): Promise<{ imported: number; errors: string[] }> {
+  if (file.size > MAX_IMPORT_BYTES)
+    return { imported: 0, errors: ["File too large (max 1 MB)."] };
 
   let data: unknown;
   try {
@@ -60,14 +69,20 @@ async function importFile(file: File): Promise<{ imported: number; errors: strin
 
   const items: unknown[] = Array.isArray(data)
     ? data
-    : data && typeof data === "object" && Array.isArray((data as { exercises?: unknown }).exercises)
+    : data &&
+        typeof data === "object" &&
+        Array.isArray((data as { exercises?: unknown }).exercises)
       ? (data as { exercises: unknown[] }).exercises
       : [data];
 
   let imported = 0;
   const errors: string[] = [];
   for (const item of items.slice(0, MAX_IMPORT_ITEMS)) {
-    if (item && typeof item === "object" && typeof (item as { id?: unknown }).id === "string") {
+    if (
+      item &&
+      typeof item === "object" &&
+      typeof (item as { id?: unknown }).id === "string"
+    ) {
       const obj = item as { id: string };
       obj.id = toCustomId(obj.id);
     }
@@ -97,10 +112,15 @@ export default function CustomScreen() {
     if (!file) return;
     const { imported, errors } = await importFile(file);
     refreshCustomExercises();
-    notify(`Imported ${imported}${errors.length ? ` · skipped ${errors.length}` : ""}.`, {
-      severity: errors.length ? (imported ? "warning" : "error") : "success",
-      action: errors.length ? { label: "Details", onClick: () => setImportErrors(errors) } : undefined,
-    });
+    notify(
+      `Imported ${imported}${errors.length ? ` · skipped ${errors.length}` : ""}.`,
+      {
+        severity: errors.length ? (imported ? "warning" : "error") : "success",
+        action: errors.length
+          ? { label: "Details", onClick: () => setImportErrors(errors) }
+          : undefined,
+      },
+    );
   };
 
   const remove = async (ex: ExerciseDef) => {
@@ -118,18 +138,32 @@ export default function CustomScreen() {
 
   return (
     <Stack spacing={3}>
-      <Stack direction={{ xs: "column", sm: "row" }} spacing={2} sx={{ alignItems: { sm: "center" } }}>
+      <Stack
+        direction={{ xs: "column", sm: "row" }}
+        spacing={2}
+        sx={{ alignItems: { sm: "center" } }}
+      >
         <Stack sx={{ flex: 1 }}>
           <Typography variant="h4" component="h1">
             Custom exercises
           </Typography>
-          <Typography color="text.secondary">Create your own or import them from a file.</Typography>
+          <Typography color="text.secondary">
+            Create your own or import them from a file.
+          </Typography>
         </Stack>
         <Stack direction="row" spacing={1} useFlexGap sx={{ flexWrap: "wrap" }}>
-          <Button variant="contained" startIcon={<AddIcon />} onClick={() => setEditor({})}>
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => setEditor({})}
+          >
             New
           </Button>
-          <Button variant="outlined" startIcon={<UploadFileIcon />} onClick={() => fileInput.current?.click()}>
+          <Button
+            variant="outlined"
+            startIcon={<UploadFileIcon />}
+            onClick={() => fileInput.current?.click()}
+          >
             Import
           </Button>
           <Button
@@ -164,17 +198,26 @@ export default function CustomScreen() {
                 secondaryAction={
                   <Stack direction="row">
                     <Tooltip title="Edit">
-                      <IconButton aria-label={`Edit ${ex.name}`} onClick={() => setEditor({ exercise: ex })}>
+                      <IconButton
+                        aria-label={`Edit ${ex.name}`}
+                        onClick={() => setEditor({ exercise: ex })}
+                      >
                         <EditIcon />
                       </IconButton>
                     </Tooltip>
                     <Tooltip title="Export">
-                      <IconButton aria-label={`Export ${ex.name}`} onClick={() => exportExercises([ex])}>
+                      <IconButton
+                        aria-label={`Export ${ex.name}`}
+                        onClick={() => exportExercises([ex])}
+                      >
                         <DownloadIcon />
                       </IconButton>
                     </Tooltip>
                     <Tooltip title="Delete">
-                      <IconButton aria-label={`Delete ${ex.name}`} onClick={() => void remove(ex)}>
+                      <IconButton
+                        aria-label={`Delete ${ex.name}`}
+                        onClick={() => void remove(ex)}
+                      >
                         <DeleteIcon />
                       </IconButton>
                     </Tooltip>
@@ -183,7 +226,12 @@ export default function CustomScreen() {
                 sx={{ pr: (t) => t.spacing(20) }}
               >
                 <ListItemAvatar>
-                  <Avatar sx={{ bgcolor: "primary.main", color: "primary.contrastText" }}>
+                  <Avatar
+                    sx={{
+                      bgcolor: "primary.main",
+                      color: "primary.contrastText",
+                    }}
+                  >
                     {ex.type === "hold" ? <TimerIcon /> : <RepeatIcon />}
                   </Avatar>
                 </ListItemAvatar>
@@ -201,7 +249,11 @@ export default function CustomScreen() {
           title="No custom exercises yet"
           description="Build an exercise by picking three joints and the angle range, or import one from a JSON file."
           action={
-            <Button variant="contained" startIcon={<AddIcon />} onClick={() => setEditor({})}>
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => setEditor({})}
+            >
               Create exercise
             </Button>
           }
@@ -219,7 +271,12 @@ export default function CustomScreen() {
         }}
       />
 
-      <Dialog open={importErrors !== null} onClose={() => setImportErrors(null)} maxWidth="sm" fullWidth>
+      <Dialog
+        open={importErrors !== null}
+        onClose={() => setImportErrors(null)}
+        maxWidth="sm"
+        fullWidth
+      >
         <DialogTitle>Skipped exercises</DialogTitle>
         <DialogContent>
           <List dense>

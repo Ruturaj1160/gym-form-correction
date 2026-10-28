@@ -1,4 +1,10 @@
-import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
 import type { ExerciseDef } from "../engine/types";
 import type { WorkoutSummary } from "../camera/engine";
 
@@ -48,7 +54,9 @@ export function ScreenProvider({ children }: { children: ReactNode }) {
     [tab, summary, setup],
   );
 
-  return <ScreenContext.Provider value={value}>{children}</ScreenContext.Provider>;
+  return (
+    <ScreenContext.Provider value={value}>{children}</ScreenContext.Provider>
+  );
 }
 
 export function useScreen(): ScreenState {

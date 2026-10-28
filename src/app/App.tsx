@@ -52,11 +52,14 @@ function LowFpsNotifier() {
   useEffect(() => {
     if (!camera.lowFps || shown.current) return;
     shown.current = true;
-    notify("Tracking is running slowly. Switch to the Lite model for smoother results?", {
-      severity: "warning",
-      autoHideMs: 10_000,
-      action: { label: "Switch", onClick: () => void switchModel("lite") },
-    });
+    notify(
+      "Tracking is running slowly. Switch to the Lite model for smoother results?",
+      {
+        severity: "warning",
+        autoHideMs: 10_000,
+        action: { label: "Switch", onClick: () => void switchModel("lite") },
+      },
+    );
   }, [camera.lowFps, notify, switchModel]);
 
   return null;
@@ -69,7 +72,8 @@ function Shell() {
   const cameraMode = mode !== "idle";
 
   let modeScreen = null;
-  if (mode === "workout") modeScreen = workout?.phase === "rest" ? <RestScreen /> : <WorkoutScreen />;
+  if (mode === "workout")
+    modeScreen = workout?.phase === "rest" ? <RestScreen /> : <WorkoutScreen />;
   else if (mode === "calibration") modeScreen = <CalibrationScreen />;
   else if (mode === "autodetect") modeScreen = <AutoDetectScreen />;
 
@@ -96,8 +100,15 @@ export function App() {
   const prefersDark = useMediaQuery("(prefers-color-scheme: dark)");
   const reducedMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
   const mode =
-    settings.themeMode === "system" ? (prefersDark ? "dark" : "light") : settings.themeMode;
-  const theme = useMemo(() => createAppTheme(mode, reducedMotion), [mode, reducedMotion]);
+    settings.themeMode === "system"
+      ? prefersDark
+        ? "dark"
+        : "light"
+      : settings.themeMode;
+  const theme = useMemo(
+    () => createAppTheme(mode, reducedMotion),
+    [mode, reducedMotion],
+  );
 
   return (
     <ThemeProvider theme={theme}>

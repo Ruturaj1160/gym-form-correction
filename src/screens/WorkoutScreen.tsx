@@ -47,8 +47,11 @@ function feedbackFor(view: WorkoutView): Feedback | null {
   const s = view.state;
   if (!s) return null;
   if (s.kind === "hold") {
-    if (!s.inFrame) return { text: "Get your whole body in frame", severity: "warning" };
-    return s.issues[0] ? { text: s.issues[0].message, severity: "error" } : null;
+    if (!s.inFrame)
+      return { text: "Get your whole body in frame", severity: "warning" };
+    return s.issues[0]
+      ? { text: s.issues[0].message, severity: "error" }
+      : null;
   }
   if (s.issues[0]) return { text: s.issues[0].message, severity: "error" };
   const rep = view.lastRep;
@@ -56,7 +59,11 @@ function feedbackFor(view: WorkoutView): Feedback | null {
     const good = rep.summary.event.kind === "full" && rep.summary.score >= 90;
     return {
       text: rep.summary.feedback,
-      severity: good ? "success" : rep.summary.event.kind === "full" ? "info" : "warning",
+      severity: good
+        ? "success"
+        : rep.summary.event.kind === "full"
+          ? "info"
+          : "warning",
     };
   }
   return null;
@@ -88,7 +95,8 @@ export function WorkoutScreen() {
   if (!view) return null;
   const { exercise, config, state } = view;
   const isHold = exercise.type === "hold";
-  const unit = exercise.type === "reps" ? metricUnit(exercise.primary.metric) : "";
+  const unit =
+    exercise.type === "reps" ? metricUnit(exercise.primary.metric) : "";
 
   let ringValue = 0;
   let ringLabel = "0";
@@ -112,27 +120,58 @@ export function WorkoutScreen() {
   const reps = state?.kind === "reps" ? state : null;
 
   return (
-    <Box sx={{ position: "fixed", inset: 0, zIndex: 1, display: "flex", flexDirection: "column" }}>
+    <Box
+      sx={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 1,
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
       <Paper
         square
         elevation={0}
-        sx={{ ...glass(), display: "flex", alignItems: "center", gap: 1, px: 1, py: 0.5 }}
+        sx={{
+          ...glass(),
+          display: "flex",
+          alignItems: "center",
+          gap: 1,
+          px: 1,
+          py: 0.5,
+        }}
       >
         <Tooltip title="End workout (Esc)">
-          <IconButton onClick={() => void endWorkout()} aria-label="End workout">
+          <IconButton
+            onClick={() => void endWorkout()}
+            aria-label="End workout"
+          >
             <CloseIcon />
           </IconButton>
         </Tooltip>
         <Typography variant="h6" noWrap sx={{ flex: 1, minWidth: 0 }}>
           {exercise.name}
         </Typography>
-        {exercise.experimental && <Chip label="Experimental" color="warning" variant="outlined" size="small" />}
-        <Chip label={`Set ${view.setIndex + 1} / ${config.sets}`} color="primary" />
+        {exercise.experimental && (
+          <Chip
+            label="Experimental"
+            color="warning"
+            variant="outlined"
+            size="small"
+          />
+        )}
+        <Chip
+          label={`Set ${view.setIndex + 1} / ${config.sets}`}
+          color="primary"
+        />
       </Paper>
 
       <Stack spacing={1} sx={{ alignItems: "center", mt: 2, px: 2 }}>
         {!camera.personDetected && (
-          <StatChip icon={<VideocamOffIcon />} label="No person detected — step into frame" />
+          <StatChip
+            icon={<VideocamOffIcon />}
+            label="No person detected — step into frame"
+          />
         )}
         <FeedbackPill feedback={feedbackFor(view)} />
       </Stack>
@@ -153,19 +192,34 @@ export function WorkoutScreen() {
           {isHold ? "" : `${ringLabel} reps`}
         </VisuallyHidden>
 
-        <Stack direction="row" spacing={1} useFlexGap sx={{ flexWrap: "wrap", justifyContent: "center" }}>
+        <Stack
+          direction="row"
+          spacing={1}
+          useFlexGap
+          sx={{ flexWrap: "wrap", justifyContent: "center" }}
+        >
           {state?.kind === "hold" && (
-            <StatChip label={state.holding ? "Holding" : "Paused"} color={state.holding ? "success" : "default"} />
+            <StatChip
+              label={state.holding ? "Holding" : "Paused"}
+              color={state.holding ? "success" : "default"}
+            />
           )}
           {reps && (
             <>
               <StatChip
                 icon={<StraightenIcon />}
-                label={reps.value === null ? "--" : `${fmtValue(reps.value)}${unit}`}
+                label={
+                  reps.value === null ? "--" : `${fmtValue(reps.value)}${unit}`
+                }
               />
-              <StatChip label={PHASE_LABEL[reps.phase]} color={reps.phase === "bottom" ? "success" : "default"} />
+              <StatChip
+                label={PHASE_LABEL[reps.phase]}
+                color={reps.phase === "bottom" ? "success" : "default"}
+              />
               {reps.sideCounts && (
-                <StatChip label={`L ${reps.sideCounts.left} · R ${reps.sideCounts.right}`} />
+                <StatChip
+                  label={`L ${reps.sideCounts.left} · R ${reps.sideCounts.right}`}
+                />
               )}
               {lastFull && (
                 <StatChip
@@ -174,9 +228,14 @@ export function WorkoutScreen() {
                 />
               )}
               {reps.avgScore !== null && (
-                <StatChip label={`Form ${reps.avgScore}%`} color={formColor(reps.avgScore)} />
+                <StatChip
+                  label={`Form ${reps.avgScore}%`}
+                  color={formColor(reps.avgScore)}
+                />
               )}
-              {reps.partials > 0 && <StatChip label={`Partial ${reps.partials}`} color="warning" />}
+              {reps.partials > 0 && (
+                <StatChip label={`Partial ${reps.partials}`} color="warning" />
+              )}
             </>
           )}
         </Stack>
@@ -195,11 +254,19 @@ export function WorkoutScreen() {
           pb: "max(12px, env(safe-area-inset-bottom))",
         }}
       >
-        <Button variant="outlined" startIcon={<ReplayIcon />} onClick={() => engine.restartSet()}>
+        <Button
+          variant="outlined"
+          startIcon={<ReplayIcon />}
+          onClick={() => engine.restartSet()}
+        >
           Restart set
         </Button>
         <Tooltip title="Shortcut: Space" describeChild>
-          <Button variant="contained" startIcon={<CheckIcon />} onClick={() => engine.finishSet()}>
+          <Button
+            variant="contained"
+            startIcon={<CheckIcon />}
+            onClick={() => engine.finishSet()}
+          >
             Finish set
           </Button>
         </Tooltip>

@@ -1,5 +1,9 @@
 import { Store, useStore } from "../app/store";
-import { loadSettings, saveSettings, type AppSettings } from "../storage/settings";
+import {
+  loadSettings,
+  saveSettings,
+  type AppSettings,
+} from "../storage/settings";
 
 export const settingsStore = new Store<AppSettings>(loadSettings());
 

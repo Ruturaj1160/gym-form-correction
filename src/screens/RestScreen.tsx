@@ -49,7 +49,15 @@ export function RestScreen() {
         backdropFilter: "blur(16px)",
       })}
     >
-      <Stack spacing={3} sx={{ alignItems: "center", textAlign: "center", width: "100%", maxWidth: 420 }}>
+      <Stack
+        spacing={3}
+        sx={{
+          alignItems: "center",
+          textAlign: "center",
+          width: "100%",
+          maxWidth: 420,
+        }}
+      >
         <Box>
           <Typography variant="overline" color="text.secondary">
             {exercise.name}
@@ -64,7 +72,12 @@ export function RestScreen() {
           color="secondary"
           variant="timer"
         />
-        <Typography role="timer" aria-live="off" variant="subtitle1" color="text.secondary">
+        <Typography
+          role="timer"
+          aria-live="off"
+          variant="subtitle1"
+          color="text.secondary"
+        >
           Next: set {view.setIndex + 2} of {config.sets}
         </Typography>
 
@@ -74,17 +87,28 @@ export function RestScreen() {
               <Typography variant="overline" color="text.secondary">
                 Set {view.setIndex + 1}
               </Typography>
-              <Stack direction="row" spacing={1} sx={{ justifyContent: "center", mt: 1 }}>
+              <Stack
+                direction="row"
+                spacing={1}
+                sx={{ justifyContent: "center", mt: 1 }}
+              >
                 {lastSet.holdMs !== null ? (
                   <Chip label={`Hold ${fmtClock(lastSet.holdMs, 0)}`} />
                 ) : (
                   <>
                     <Chip label={`${lastSet.reps} reps`} />
                     {lastSet.avgScore !== null && (
-                      <Chip label={`Form ${lastSet.avgScore}%`} color={formColor(lastSet.avgScore)} />
+                      <Chip
+                        label={`Form ${lastSet.avgScore}%`}
+                        color={formColor(lastSet.avgScore)}
+                      />
                     )}
                     {lastSet.partials > 0 && (
-                      <Chip label={`${lastSet.partials} partial`} color="warning" variant="outlined" />
+                      <Chip
+                        label={`${lastSet.partials} partial`}
+                        color="warning"
+                        variant="outlined"
+                      />
                     )}
                   </>
                 )}
@@ -93,7 +117,12 @@ export function RestScreen() {
           </Card>
         )}
 
-        <Stack direction="row" spacing={1} useFlexGap sx={{ flexWrap: "wrap", justifyContent: "center" }}>
+        <Stack
+          direction="row"
+          spacing={1}
+          useFlexGap
+          sx={{ flexWrap: "wrap", justifyContent: "center" }}
+        >
           <Button
             variant="contained"
             size="large"
@@ -103,7 +132,12 @@ export function RestScreen() {
           >
             Skip rest
           </Button>
-          <Button variant="outlined" size="large" startIcon={<AddIcon />} onClick={() => engine.extendRest(EXTEND_MS)}>
+          <Button
+            variant="outlined"
+            size="large"
+            startIcon={<AddIcon />}
+            onClick={() => engine.extendRest(EXTEND_MS)}
+          >
             15 s
           </Button>
           <Button color="error" size="large" onClick={() => void endWorkout()}>

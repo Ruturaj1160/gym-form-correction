@@ -98,7 +98,16 @@ const STEPS = ["Basics", "Metric", "Thresholds", "Review"];
 const STEP_FIELDS: Field[][] = [
   ["name", "category", "view", "side", "setup", "type"],
   ["a", "b", "c"],
-  ["start", "target", "hysteresis", "minRep", "targetMsg", "holdMin", "holdMax", "holdMsg"],
+  [
+    "start",
+    "target",
+    "hysteresis",
+    "minRep",
+    "targetMsg",
+    "holdMin",
+    "holdMax",
+    "holdMsg",
+  ],
 ];
 
 // Maps validateExercise() error paths to form fields.
@@ -136,7 +145,11 @@ function fromExercise(ex: ExerciseDef): FormState | null {
   if (ex.type === "reps") {
     const m = ex.primary.metric;
     const rules = ex.formRules ?? [];
-    if (m.kind !== "angle" || ex.sideAttribution || rules.some((r) => r.kind !== "reachedTarget")) {
+    if (
+      m.kind !== "angle" ||
+      ex.sideAttribution ||
+      rules.some((r) => r.kind !== "reachedTarget")
+    ) {
       return null;
     }
     const [a, b, c] = m.points;
@@ -172,7 +185,14 @@ function fromExercise(ex: ExerciseDef): FormState | null {
 
 function toRaw(f: FormState, id: string): unknown {
   const metric = { kind: "angle", points: [f.a, f.b, f.c] };
-  const base = { id, name: f.name, category: f.category, view: f.view, setup: f.setup, side: f.side };
+  const base = {
+    id,
+    name: f.name,
+    category: f.category,
+    view: f.view,
+    setup: f.setup,
+    side: f.side,
+  };
   if (f.type === "hold") {
     return {
       ...base,
@@ -197,27 +217,37 @@ function toRaw(f: FormState, id: string): unknown {
       hysteresis: toNum(f.hysteresis),
     },
     minRepDurationMs: toNum(f.minRep),
-    ...(f.targetMsg.trim() ? { formRules: [{ kind: "reachedTarget", message: f.targetMsg }] } : {}),
+    ...(f.targetMsg.trim()
+      ? { formRules: [{ kind: "reachedTarget", message: f.targetMsg }] }
+      : {}),
   };
 }
 
 function takenIds(ignoreId?: string): Set<string> {
   return new Set(
-    [...EXERCISES, ...loadCustomExercises()].map((e) => e.id).filter((id) => id !== ignoreId),
+    [...EXERCISES, ...loadCustomExercises()]
+      .map((e) => e.id)
+      .filter((id) => id !== ignoreId),
   );
 }
 
 /** Validates the whole form; returns per-field errors (empty when valid) and the parsed value. */
-function validateForm(f: FormState, id: string): { errors: Errors; value?: ExerciseDef } {
+function validateForm(
+  f: FormState,
+  id: string,
+): { errors: Errors; value?: ExerciseDef } {
   const errors: Errors = {};
-  if (new Set([f.a, f.b, f.c]).size < 3) errors.b = "Pick three different joints.";
+  if (new Set([f.a, f.b, f.c]).size < 3)
+    errors.b = "Pick three different joints.";
   const r = validateExercise(toRaw(f, id));
   if (!r.ok) {
     const [path, ...rest] = r.error.split(": ");
     const field = PATH_TO_FIELD.find(([re]) => re.test(r.error))?.[1] ?? "name";
     errors[field] ??= rest.join(": ") || path;
   }
-  return Object.keys(errors).length || !r.ok ? { errors } : { errors, value: r.value };
+  return Object.keys(errors).length || !r.ok
+    ? { errors }
+    : { errors, value: r.value };
 }
 
 interface Props {
@@ -228,13 +258,30 @@ interface Props {
   onSaved: (exercise: ExerciseDef) => void;
 }
 
-export function ExerciseEditorDialog({ open, exercise, onClose, onSaved }: Props) {
+export function ExerciseEditorDialog({
+  open,
+  exercise,
+  onClose,
+  onSaved,
+}: Props) {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
   return (
-    <Dialog open={open} onClose={onClose} fullScreen={fullScreen} fullWidth maxWidth="md" aria-labelledby="editor-title">
+    <Dialog
+      open={open}
+      onClose={onClose}
+      fullScreen={fullScreen}
+      fullWidth
+      maxWidth="md"
+      aria-labelledby="editor-title"
+    >
       {open && (
-        <EditorBody key={exercise?.id ?? "new"} exercise={exercise} onClose={onClose} onSaved={onSaved} />
+        <EditorBody
+          key={exercise?.id ?? "new"}
+          exercise={exercise}
+          onClose={onClose}
+          onSaved={onSaved}
+        />
       )}
     </Dialog>
   );
@@ -243,12 +290,18 @@ export function ExerciseEditorDialog({ open, exercise, onClose, onSaved }: Props
 function EditorBody({ exercise, onClose, onSaved }: Omit<Props, "open">) {
   const initialForm = exercise ? fromExercise(exercise) : DEFAULT_FORM;
   const guidedAvailable = initialForm !== null;
-  const [tab, setTab] = useState<"guided" | "json">(guidedAvailable ? "guided" : "json");
+  const [tab, setTab] = useState<"guided" | "json">(
+    guidedAvailable ? "guided" : "json",
+  );
   const [form, setForm] = useState<FormState>(initialForm ?? DEFAULT_FORM);
   const [errors, setErrors] = useState<Errors>({});
   const [step, setStep] = useState(0);
   const [json, setJson] = useState(() =>
-    JSON.stringify(exercise ?? toRaw(DEFAULT_FORM, "custom-my-exercise"), null, 2),
+    JSON.stringify(
+      exercise ?? toRaw(DEFAULT_FORM, "custom-my-exercise"),
+      null,
+      2,
+    ),
   );
   const [jsonError, setJsonError] = useState<string | null>(null);
 
@@ -258,7 +311,11 @@ function EditorBody({ exercise, onClose, onSaved }: Omit<Props, "open">) {
     setErrors((e) => ({ ...e, [key]: undefined }));
   };
 
-  const text = (key: Field, label: string, opts: { number?: boolean; helper?: string; multiline?: boolean } = {}) => (
+  const text = (
+    key: Field,
+    label: string,
+    opts: { number?: boolean; helper?: string; multiline?: boolean } = {},
+  ) => (
     <TextField
       label={label}
       value={form[key]}
@@ -275,7 +332,9 @@ function EditorBody({ exercise, onClose, onSaved }: Omit<Props, "open">) {
   const next = () => {
     const { errors: all } = validateForm(form, id);
     const stepErrors = Object.fromEntries(
-      Object.entries(all).filter(([k]) => STEP_FIELDS[step].includes(k as Field)),
+      Object.entries(all).filter(([k]) =>
+        STEP_FIELDS[step].includes(k as Field),
+      ),
     );
     setErrors(stepErrors);
     if (!Object.keys(stepErrors).length) setStep((s) => s + 1);
@@ -285,7 +344,9 @@ function EditorBody({ exercise, onClose, onSaved }: Omit<Props, "open">) {
     const { errors: all, value } = validateForm(form, id);
     if (!value) {
       setErrors(all);
-      const firstStep = STEP_FIELDS.findIndex((fields) => fields.some((f) => all[f]));
+      const firstStep = STEP_FIELDS.findIndex((fields) =>
+        fields.some((f) => all[f]),
+      );
       setStep(firstStep === -1 ? 0 : firstStep);
       return;
     }
@@ -306,7 +367,10 @@ function EditorBody({ exercise, onClose, onSaved }: Omit<Props, "open">) {
       // Editing keeps the original id so calibration and history stay linked.
       obj.id = exercise
         ? exercise.id
-        : uniqueId(toCustomId(typeof obj.id === "string" ? obj.id : "exercise"), takenIds());
+        : uniqueId(
+            toCustomId(typeof obj.id === "string" ? obj.id : "exercise"),
+            takenIds(),
+          );
     }
     const r = validateExercise(raw);
     if (!r.ok) {
@@ -319,13 +383,22 @@ function EditorBody({ exercise, onClose, onSaved }: Omit<Props, "open">) {
 
   return (
     <>
-      <DialogTitle id="editor-title" sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-        <Box sx={{ flex: 1 }}>{exercise ? `Edit ${exercise.name}` : "New exercise"}</Box>
+      <DialogTitle
+        id="editor-title"
+        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+      >
+        <Box sx={{ flex: 1 }}>
+          {exercise ? `Edit ${exercise.name}` : "New exercise"}
+        </Box>
         <IconButton aria-label="Close" onClick={onClose}>
           <CloseIcon />
         </IconButton>
       </DialogTitle>
-      <Tabs value={tab} onChange={(_, v: "guided" | "json") => setTab(v)} sx={{ px: 3 }}>
+      <Tabs
+        value={tab}
+        onChange={(_, v: "guided" | "json") => setTab(v)}
+        sx={{ px: 3 }}
+      >
         <Tab value="guided" label="Guided" disabled={!guidedAvailable} />
         <Tab value="json" label="Advanced JSON" />
       </Tabs>
@@ -336,7 +409,9 @@ function EditorBody({ exercise, onClose, onSaved }: Omit<Props, "open">) {
             <Stepper activeStep={step} alternativeLabel>
               {STEPS.map((label, i) => (
                 <Step key={label} completed={i < step}>
-                  <StepLabel error={STEP_FIELDS[i]?.some((f) => errors[f])}>{label}</StepLabel>
+                  <StepLabel error={STEP_FIELDS[i]?.some((f) => errors[f])}>
+                    {label}
+                  </StepLabel>
                 </Step>
               ))}
             </Stepper>
@@ -347,30 +422,65 @@ function EditorBody({ exercise, onClose, onSaved }: Omit<Props, "open">) {
                 <ToggleButtonGroup
                   exclusive
                   value={form.type}
-                  onChange={(_, v: FormState["type"] | null) => v && set("type", v)}
+                  onChange={(_, v: FormState["type"] | null) =>
+                    v && set("type", v)
+                  }
                   aria-label="Exercise type"
                   sx={{ mb: 2 }}
                 >
                   <ToggleButton value="reps">Count reps</ToggleButton>
                   <ToggleButton value="hold">Timed hold</ToggleButton>
                 </ToggleButtonGroup>
-                <Box sx={(t) => ({ display: "grid", gap: 2, gridTemplateColumns: `repeat(auto-fit, minmax(${t.spacing(26)}, 1fr))` })}>
-                  <TextField select label="Category" value={form.category} onChange={(e) => set("category", e.target.value as Category)}>
+                <Box
+                  sx={(t) => ({
+                    display: "grid",
+                    gap: 2,
+                    gridTemplateColumns: `repeat(auto-fit, minmax(${t.spacing(26)}, 1fr))`,
+                  })}
+                >
+                  <TextField
+                    select
+                    label="Category"
+                    value={form.category}
+                    onChange={(e) =>
+                      set("category", e.target.value as Category)
+                    }
+                  >
                     {CATEGORIES.map((c) => (
-                      <MenuItem key={c} value={c}>{c}</MenuItem>
+                      <MenuItem key={c} value={c}>
+                        {c}
+                      </MenuItem>
                     ))}
                   </TextField>
-                  <TextField select label="Camera view" value={form.view} onChange={(e) => set("view", e.target.value as FormState["view"])}>
+                  <TextField
+                    select
+                    label="Camera view"
+                    value={form.view}
+                    onChange={(e) =>
+                      set("view", e.target.value as FormState["view"])
+                    }
+                  >
                     <MenuItem value="side">Side view</MenuItem>
                     <MenuItem value="front">Front view</MenuItem>
                   </TextField>
-                  <TextField select label="Sides" value={form.side} onChange={(e) => set("side", e.target.value as SideMode)}>
+                  <TextField
+                    select
+                    label="Sides"
+                    value={form.side}
+                    onChange={(e) => set("side", e.target.value as SideMode)}
+                  >
                     {SIDE_MODES.map((s) => (
-                      <MenuItem key={s} value={s}>{SIDE_LABEL[s]}</MenuItem>
+                      <MenuItem key={s} value={s}>
+                        {SIDE_LABEL[s]}
+                      </MenuItem>
                     ))}
                   </TextField>
                 </Box>
-                <Box sx={{ mt: 2 }}>{text("setup", "Camera setup hint", { helper: "Shown before the workout starts." })}</Box>
+                <Box sx={{ mt: 2 }}>
+                  {text("setup", "Camera setup hint", {
+                    helper: "Shown before the workout starts.",
+                  })}
+                </Box>
               </Stack>
             )}
 
@@ -381,7 +491,12 @@ function EditorBody({ exercise, onClose, onSaved }: Omit<Props, "open">) {
                 c={form.c}
                 onChange={(patch) => {
                   setForm((f) => ({ ...f, ...patch }));
-                  setErrors((e) => ({ ...e, a: undefined, b: undefined, c: undefined }));
+                  setErrors((e) => ({
+                    ...e,
+                    a: undefined,
+                    b: undefined,
+                    c: undefined,
+                  }));
                 }}
                 error={errors.b ?? errors.a ?? errors.c}
               />
@@ -389,17 +504,43 @@ function EditorBody({ exercise, onClose, onSaved }: Omit<Props, "open">) {
 
             {step === 2 &&
               (form.type === "reps" ? (
-                <Box sx={(t) => ({ display: "grid", gap: 2, gridTemplateColumns: `repeat(auto-fit, minmax(${t.spacing(26)}, 1fr))` })}>
-                  {text("start", "Start angle (°)", { number: true, helper: "Angle at rest / top of the rep" })}
-                  {text("target", "Target angle (°)", { number: true, helper: "Angle that counts as a full rep" })}
-                  {text("hysteresis", "Hysteresis (°)", { number: true, helper: "Dead zone that stops jitter" })}
-                  {text("minRep", "Min rep time (ms)", { number: true, helper: "Faster movements are ignored" })}
+                <Box
+                  sx={(t) => ({
+                    display: "grid",
+                    gap: 2,
+                    gridTemplateColumns: `repeat(auto-fit, minmax(${t.spacing(26)}, 1fr))`,
+                  })}
+                >
+                  {text("start", "Start angle (°)", {
+                    number: true,
+                    helper: "Angle at rest / top of the rep",
+                  })}
+                  {text("target", "Target angle (°)", {
+                    number: true,
+                    helper: "Angle that counts as a full rep",
+                  })}
+                  {text("hysteresis", "Hysteresis (°)", {
+                    number: true,
+                    helper: "Dead zone that stops jitter",
+                  })}
+                  {text("minRep", "Min rep time (ms)", {
+                    number: true,
+                    helper: "Faster movements are ignored",
+                  })}
                   <Box sx={{ gridColumn: "1 / -1" }}>
-                    {text("targetMsg", "Partial-rep message", { helper: "Shown when the target isn't reached" })}
+                    {text("targetMsg", "Partial-rep message", {
+                      helper: "Shown when the target isn't reached",
+                    })}
                   </Box>
                 </Box>
               ) : (
-                <Box sx={(t) => ({ display: "grid", gap: 2, gridTemplateColumns: `repeat(auto-fit, minmax(${t.spacing(26)}, 1fr))` })}>
+                <Box
+                  sx={(t) => ({
+                    display: "grid",
+                    gap: 2,
+                    gridTemplateColumns: `repeat(auto-fit, minmax(${t.spacing(26)}, 1fr))`,
+                  })}
+                >
                   {text("holdMin", "Min angle (°)", { number: true })}
                   {text("holdMax", "Max angle (°)", { number: true })}
                   <Box sx={{ gridColumn: "1 / -1" }}>
@@ -410,10 +551,29 @@ function EditorBody({ exercise, onClose, onSaved }: Omit<Props, "open">) {
 
             {step === 3 && (
               <List dense>
-                <ListItem><ListItemText primary="Name" secondary={form.name || "—"} /></ListItem>
-                <ListItem><ListItemText primary="Type" secondary={form.type === "reps" ? "Count reps" : "Timed hold"} /></ListItem>
-                <ListItem><ListItemText primary="Category · view · sides" secondary={`${form.category} · ${form.view} view · ${SIDE_LABEL[form.side]}`} /></ListItem>
-                <ListItem><ListItemText primary="Angle" secondary={`${JOINT_LABEL[form.a]} → ${JOINT_LABEL[form.b]} → ${JOINT_LABEL[form.c]}`} /></ListItem>
+                <ListItem>
+                  <ListItemText primary="Name" secondary={form.name || "—"} />
+                </ListItem>
+                <ListItem>
+                  <ListItemText
+                    primary="Type"
+                    secondary={
+                      form.type === "reps" ? "Count reps" : "Timed hold"
+                    }
+                  />
+                </ListItem>
+                <ListItem>
+                  <ListItemText
+                    primary="Category · view · sides"
+                    secondary={`${form.category} · ${form.view} view · ${SIDE_LABEL[form.side]}`}
+                  />
+                </ListItem>
+                <ListItem>
+                  <ListItemText
+                    primary="Angle"
+                    secondary={`${JOINT_LABEL[form.a]} → ${JOINT_LABEL[form.b]} → ${JOINT_LABEL[form.c]}`}
+                  />
+                </ListItem>
                 <ListItem>
                   <ListItemText
                     primary="Thresholds"
@@ -431,7 +591,8 @@ function EditorBody({ exercise, onClose, onSaved }: Omit<Props, "open">) {
           <Stack spacing={2}>
             {!guidedAvailable && (
               <Alert severity="info">
-                This exercise uses features the guided editor doesn't support, so it can only be edited as JSON.
+                This exercise uses features the guided editor doesn't support,
+                so it can only be edited as JSON.
               </Alert>
             )}
             {jsonError && <Alert severity="error">{jsonError}</Alert>}
@@ -447,13 +608,18 @@ function EditorBody({ exercise, onClose, onSaved }: Omit<Props, "open">) {
                 htmlInput: {
                   spellCheck: false,
                   "aria-label": "Exercise JSON",
-                  style: { fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", fontSize: "0.85rem" },
+                  style: {
+                    fontFamily:
+                      "ui-monospace, SFMono-Regular, Menlo, monospace",
+                    fontSize: "0.85rem",
+                  },
                 },
               }}
               fullWidth
             />
             <Typography variant="caption" color="text.secondary">
-              Supports every metric kind, form rules and side attribution. Ids are kept in the custom namespace.
+              Supports every metric kind, form rules and side attribution. Ids
+              are kept in the custom namespace.
             </Typography>
           </Stack>
         )}
@@ -462,19 +628,27 @@ function EditorBody({ exercise, onClose, onSaved }: Omit<Props, "open">) {
       <DialogActions sx={{ px: 3, py: 2 }}>
         {tab === "guided" ? (
           <>
-            <Button onClick={step === 0 ? onClose : () => setStep((s) => s - 1)}>
+            <Button
+              onClick={step === 0 ? onClose : () => setStep((s) => s - 1)}
+            >
               {step === 0 ? "Cancel" : "Back"}
             </Button>
             {step < STEPS.length - 1 ? (
-              <Button variant="contained" onClick={next}>Next</Button>
+              <Button variant="contained" onClick={next}>
+                Next
+              </Button>
             ) : (
-              <Button variant="contained" onClick={saveGuided}>Save</Button>
+              <Button variant="contained" onClick={saveGuided}>
+                Save
+              </Button>
             )}
           </>
         ) : (
           <>
             <Button onClick={onClose}>Cancel</Button>
-            <Button variant="contained" onClick={saveJson}>Save</Button>
+            <Button variant="contained" onClick={saveJson}>
+              Save
+            </Button>
           </>
         )}
       </DialogActions>

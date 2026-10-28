@@ -40,7 +40,9 @@ export function AppFrame({ children }: { children: ReactNode }) {
   const camera = useCamera();
   const drawerWidth = theme.spacing(28);
   const loading =
-    camera.switchingModel || camera.status === "starting" || camera.status === "loading-model";
+    camera.switchingModel ||
+    camera.status === "starting" ||
+    camera.status === "loading-model";
 
   return (
     <Box
@@ -58,7 +60,10 @@ export function AppFrame({ children }: { children: ReactNode }) {
           sx={{
             width: drawerWidth,
             flexShrink: 0,
-            "& .MuiDrawer-paper": { width: drawerWidth, boxSizing: "border-box" },
+            "& .MuiDrawer-paper": {
+              width: drawerWidth,
+              boxSizing: "border-box",
+            },
           }}
         >
           <Toolbar sx={{ gap: 1.5 }}>
@@ -84,12 +89,18 @@ export function AppFrame({ children }: { children: ReactNode }) {
         </Drawer>
       )}
 
-      <Box sx={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
+      <Box
+        sx={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}
+      >
         <AppBar
           position="sticky"
           color="inherit"
           elevation={0}
-          sx={{ borderBottom: 1, borderColor: "divider", bgcolor: "background.default" }}
+          sx={{
+            borderBottom: 1,
+            borderColor: "divider",
+            bgcolor: "background.default",
+          }}
         >
           <Toolbar sx={{ gap: 1 }}>
             {!desktop && <FitnessCenterIcon color="primary" />}
@@ -97,10 +108,17 @@ export function AppFrame({ children }: { children: ReactNode }) {
               Gym Form Correction
             </Typography>
             <Tooltip title="Pose model">
-              <Chip size="small" variant="outlined" label={`Model: ${camera.model}`} />
+              <Chip
+                size="small"
+                variant="outlined"
+                label={`Model: ${camera.model}`}
+              />
             </Tooltip>
             <Tooltip title="Settings">
-              <IconButton aria-label="Settings" onClick={() => setTab("settings")}>
+              <IconButton
+                aria-label="Settings"
+                onClick={() => setTab("settings")}
+              >
                 <SettingsIcon />
               </IconButton>
             </Tooltip>
@@ -108,7 +126,11 @@ export function AppFrame({ children }: { children: ReactNode }) {
           {loading && <LinearProgress aria-label="Loading pose model" />}
         </AppBar>
 
-        <Container component="main" maxWidth="lg" sx={{ flex: 1, py: 3, pb: { xs: 12, md: 4 } }}>
+        <Container
+          component="main"
+          maxWidth="lg"
+          sx={{ flex: 1, py: 3, pb: { xs: 12, md: 4 } }}
+        >
           {children}
         </Container>
       </Box>
@@ -116,11 +138,27 @@ export function AppFrame({ children }: { children: ReactNode }) {
       {!desktop && (
         <Paper
           elevation={8}
-          sx={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: "appBar", pb: "env(safe-area-inset-bottom)" }}
+          sx={{
+            position: "fixed",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            zIndex: "appBar",
+            pb: "env(safe-area-inset-bottom)",
+          }}
         >
-          <BottomNavigation showLabels value={tab} onChange={(_, v: Tab) => setTab(v)}>
+          <BottomNavigation
+            showLabels
+            value={tab}
+            onChange={(_, v: Tab) => setTab(v)}
+          >
             {NAV.map((n) => (
-              <BottomNavigationAction key={n.tab} value={n.tab} label={n.label} icon={n.icon} />
+              <BottomNavigationAction
+                key={n.tab}
+                value={n.tab}
+                label={n.label}
+                icon={n.icon}
+              />
             ))}
           </BottomNavigation>
         </Paper>

@@ -23,7 +23,8 @@ export function loadSettings(): AppSettings {
   const themeMode = data?.themeMode;
   return {
     model: model && POSE_MODELS.includes(model) ? model : defaultModel(),
-    themeMode: themeMode && THEME_MODES.includes(themeMode) ? themeMode : "dark",
+    themeMode:
+      themeMode && THEME_MODES.includes(themeMode) ? themeMode : "dark",
   };
 }
 

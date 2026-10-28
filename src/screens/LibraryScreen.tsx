@@ -48,7 +48,11 @@ function CameraStatus() {
       <Alert
         severity="error"
         action={
-          <Button color="inherit" size="small" onClick={() => void engine.retry()}>
+          <Button
+            color="inherit"
+            size="small"
+            onClick={() => void engine.retry()}
+          >
             Retry
           </Button>
         }
@@ -60,7 +64,9 @@ function CameraStatus() {
   if (camera.status !== "ready") {
     return (
       <Alert severity="info" icon={<CircularProgress size="1.25rem" />}>
-        {camera.status === "starting" ? "Starting camera…" : `Loading ${camera.model} pose model…`}
+        {camera.status === "starting"
+          ? "Starting camera…"
+          : `Loading ${camera.model} pose model…`}
       </Alert>
     );
   }
@@ -84,7 +90,9 @@ export function LibraryScreen() {
   const filtered = exercises.filter(
     (e) =>
       (filter === "All" || e.category === filter) &&
-      (!q || e.name.toLowerCase().includes(q) || e.category.toLowerCase().includes(q)),
+      (!q ||
+        e.name.toLowerCase().includes(q) ||
+        e.category.toLowerCase().includes(q)),
   );
 
   if (camera.status === "denied") return <CameraStatus />;
@@ -95,7 +103,9 @@ export function LibraryScreen() {
         <Typography variant="h4" component="h1">
           Train
         </Typography>
-        <Typography color="text.secondary">Pick an exercise to start a guided workout.</Typography>
+        <Typography color="text.secondary">
+          Pick an exercise to start a guided workout.
+        </Typography>
       </Box>
 
       <CameraStatus />

@@ -30,7 +30,12 @@ export function createAppTheme(mode: PaletteMode, reducedMotion: boolean) {
       warning: { main: BRAND.warning },
       error: { main: BRAND.error },
       ...(mode === "dark"
-        ? { background: { default: BRAND.darkBackground, paper: BRAND.darkPaper } }
+        ? {
+            background: {
+              default: BRAND.darkBackground,
+              paper: BRAND.darkPaper,
+            },
+          }
         : {}),
     },
     shape: { borderRadius: 12 },
@@ -50,9 +55,7 @@ export function createAppTheme(mode: PaletteMode, reducedMotion: boolean) {
         fontVariantNumeric: "tabular-nums",
       },
     },
-    ...(reducedMotion
-      ? { transitions: { create: () => "none" } }
-      : {}),
+    ...(reducedMotion ? { transitions: { create: () => "none" } } : {}),
     components: {
       MuiButton: {
         defaultProps: { disableElevation: true },

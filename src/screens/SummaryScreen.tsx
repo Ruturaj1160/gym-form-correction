@@ -24,7 +24,11 @@ function StatTile({ label, value }: { label: string; value: string }) {
         <Typography variant="overline" color="text.secondary">
           {label}
         </Typography>
-        <Typography variant="h4" component="p" sx={{ fontVariantNumeric: "tabular-nums" }}>
+        <Typography
+          variant="h4"
+          component="p"
+          sx={{ fontVariantNumeric: "tabular-nums" }}
+        >
           {value}
         </Typography>
       </CardContent>
@@ -58,8 +62,12 @@ export function SummaryScreen() {
   }
 
   const isHold = session.type === "hold";
-  const scores = session.sets.map((s) => s.avgScore).filter((v): v is number => v !== null);
-  const avgForm = scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : null;
+  const scores = session.sets
+    .map((s) => s.avgScore)
+    .filter((v): v is number => v !== null);
+  const avgForm = scores.length
+    ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
+    : null;
   const totalDuration = session.sets.reduce((n, s) => n + s.durationMs, 0);
 
   return (
@@ -76,11 +84,19 @@ export function SummaryScreen() {
           label={isHold ? "Total hold" : "Total reps"}
           value={
             isHold
-              ? fmtClock(session.sets.reduce((n, s) => n + (s.holdMs ?? 0), 0), 0)
+              ? fmtClock(
+                  session.sets.reduce((n, s) => n + (s.holdMs ?? 0), 0),
+                  0,
+                )
               : String(session.sets.reduce((n, s) => n + s.reps, 0))
           }
         />
-        {!isHold && <StatTile label="Avg form" value={avgForm === null ? "--" : `${avgForm}%`} />}
+        {!isHold && (
+          <StatTile
+            label="Avg form"
+            value={avgForm === null ? "--" : `${avgForm}%`}
+          />
+        )}
         <StatTile label="Sets" value={String(session.sets.length)} />
         <StatTile label="Duration" value={fmtClock(totalDuration, 0)} />
       </Stack>
@@ -131,16 +147,24 @@ export function SummaryScreen() {
       {recording && (
         <Card>
           <CardContent>
-            <Stack direction={{ xs: "column", sm: "row" }} spacing={2} sx={{ alignItems: { sm: "center" } }}>
+            <Stack
+              direction={{ xs: "column", sm: "row" }}
+              spacing={2}
+              sx={{ alignItems: { sm: "center" } }}
+            >
               <FiberManualRecordIcon color="error" />
               <Box sx={{ flex: 1 }}>
                 <Typography variant="subtitle1">Pose recording</Typography>
                 <Typography variant="body2" color="text.secondary">
-                  {recording.frames.toLocaleString()} frames · {recording.samples} auto-detect training
-                  samples added
+                  {recording.frames.toLocaleString()} frames ·{" "}
+                  {recording.samples} auto-detect training samples added
                 </Typography>
               </Box>
-              <Button variant="outlined" startIcon={<DownloadIcon />} onClick={recording.download}>
+              <Button
+                variant="outlined"
+                startIcon={<DownloadIcon />}
+                onClick={recording.download}
+              >
                 Download recording
               </Button>
             </Stack>

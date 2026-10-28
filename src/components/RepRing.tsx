@@ -1,5 +1,7 @@
 import Box from "@mui/material/Box";
-import CircularProgress, { type CircularProgressProps } from "@mui/material/CircularProgress";
+import CircularProgress, {
+  type CircularProgressProps,
+} from "@mui/material/CircularProgress";
 import Typography from "@mui/material/Typography";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { alpha, useTheme } from "@mui/material/styles";
@@ -14,7 +16,13 @@ interface Props {
 }
 
 /** Large determinate ring with a centred number — the hero of workout / rest screens. */
-export function RepRing({ value, label, caption, color = "primary", variant = "repCount" }: Props) {
+export function RepRing({
+  value,
+  label,
+  caption,
+  color = "primary",
+  variant = "repCount",
+}: Props) {
   const theme = useTheme();
   const small = useMediaQuery(theme.breakpoints.down("sm"));
   const size = theme.spacing(small ? 20 : 26);

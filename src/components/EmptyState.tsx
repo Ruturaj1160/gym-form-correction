@@ -14,7 +14,14 @@ export function EmptyState({ icon, title, description, action }: Props) {
   return (
     <Stack
       spacing={2}
-      sx={{ alignItems: "center", textAlign: "center", py: 8, px: 2, mx: "auto", maxWidth: 480 }}
+      sx={{
+        alignItems: "center",
+        textAlign: "center",
+        py: 8,
+        px: 2,
+        mx: "auto",
+        maxWidth: 480,
+      }}
     >
       <Box
         sx={{

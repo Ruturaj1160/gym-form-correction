@@ -21,9 +21,14 @@ export const fmtDateTime = (ts: number): string =>
   });
 
 export const fmtShortDate = (ts: number): string =>
-  new Date(ts).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  new Date(ts).toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+  });
 
-export function formColor(score: number | null): "success" | "warning" | "error" | "default" {
+export function formColor(
+  score: number | null,
+): "success" | "warning" | "error" | "default" {
   if (score === null) return "default";
   if (score >= 90) return "success";
   if (score >= 70) return "warning";

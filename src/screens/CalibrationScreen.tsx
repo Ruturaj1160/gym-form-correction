@@ -51,8 +51,13 @@ export function CalibrationScreen() {
         />
 
         <Stack direction="row" spacing={1} useFlexGap sx={{ flexWrap: "wrap" }}>
-          <Chip icon={<TimerIcon />} label={`${Math.ceil(view.remainingMs / 1000)}s left`} />
-          <Chip label={`Now ${view.value === null ? "--" : `${fmtValue(view.value)}${unit}`}`} />
+          <Chip
+            icon={<TimerIcon />}
+            label={`${Math.ceil(view.remainingMs / 1000)}s left`}
+          />
+          <Chip
+            label={`Now ${view.value === null ? "--" : `${fmtValue(view.value)}${unit}`}`}
+          />
           {view.range && (
             <Chip
               color="primary"
@@ -60,13 +65,20 @@ export function CalibrationScreen() {
             />
           )}
           {!camera.personDetected && (
-            <Chip color="warning" icon={<VideocamOffIcon />} label="No person detected" />
+            <Chip
+              color="warning"
+              icon={<VideocamOffIcon />}
+              label="No person detected"
+            />
           )}
         </Stack>
 
         <Stack direction="row" spacing={1} sx={{ justifyContent: "flex-end" }}>
           <Button onClick={() => engine.cancelCalibration()}>Cancel</Button>
-          <Button variant="contained" onClick={() => engine.completeCalibration()}>
+          <Button
+            variant="contained"
+            onClick={() => engine.completeCalibration()}
+          >
             Done
           </Button>
         </Stack>

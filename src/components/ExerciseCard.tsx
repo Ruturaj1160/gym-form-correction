@@ -21,16 +21,30 @@ interface Props {
 export function ExerciseCard({ exercise, calibrated, onClick }: Props) {
   return (
     <Card sx={{ height: "100%" }}>
-      <CardActionArea onClick={onClick} sx={{ height: "100%", alignItems: "stretch" }}>
+      <CardActionArea
+        onClick={onClick}
+        sx={{ height: "100%", alignItems: "stretch" }}
+      >
         <CardContent sx={{ height: "100%" }}>
           <Stack spacing={1.5} sx={{ height: "100%" }}>
             <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
               {exercise.name}
             </Typography>
-            <Stack direction="row" spacing={0.75} useFlexGap sx={{ flexWrap: "wrap" }}>
+            <Stack
+              direction="row"
+              spacing={0.75}
+              useFlexGap
+              sx={{ flexWrap: "wrap" }}
+            >
               <Chip
                 size="small"
-                icon={exercise.view === "side" ? <ViewSidebarIcon /> : <PersonIcon />}
+                icon={
+                  exercise.view === "side" ? (
+                    <ViewSidebarIcon />
+                  ) : (
+                    <PersonIcon />
+                  )
+                }
                 label={`${exercise.view} view`}
               />
               <Chip
@@ -39,10 +53,21 @@ export function ExerciseCard({ exercise, calibrated, onClick }: Props) {
                 label={exercise.type === "hold" ? "Timed hold" : "Reps"}
               />
               {calibrated && (
-                <Chip size="small" color="success" icon={<CheckCircleIcon />} label="Calibrated" />
+                <Chip
+                  size="small"
+                  color="success"
+                  icon={<CheckCircleIcon />}
+                  label="Calibrated"
+                />
               )}
               {exercise.experimental && (
-                <Chip size="small" color="warning" variant="outlined" icon={<ScienceIcon />} label="Experimental" />
+                <Chip
+                  size="small"
+                  color="warning"
+                  variant="outlined"
+                  icon={<ScienceIcon />}
+                  label="Experimental"
+                />
               )}
             </Stack>
             <Typography

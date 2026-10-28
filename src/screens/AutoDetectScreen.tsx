@@ -36,7 +36,8 @@ export function AutoDetectScreen() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const target = e.target instanceof HTMLElement ? e.target : null;
-      if (e.key === "Escape" && !target?.closest("[role=dialog]")) engine.stopAutoDetect();
+      if (e.key === "Escape" && !target?.closest("[role=dialog]"))
+        engine.stopAutoDetect();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -76,7 +77,8 @@ export function AutoDetectScreen() {
             <Typography variant="h6">Auto-detect</Typography>
             {view.status !== "no-data" && (
               <Typography variant="body2" color="text.secondary">
-                Trained on {view.trainedCount} exercise{view.trainedCount === 1 ? "" : "s"}
+                Trained on {view.trainedCount} exercise
+                {view.trainedCount === 1 ? "" : "s"}
               </Typography>
             )}
           </Box>
@@ -84,8 +86,9 @@ export function AutoDetectScreen() {
 
         {view.status === "no-data" ? (
           <Alert severity="info">
-            No training data yet. Run a workout with <strong>Record pose data</strong> turned on for
-            each exercise you want detected.
+            No training data yet. Run a workout with{" "}
+            <strong>Record pose data</strong> turned on for each exercise you
+            want detected.
           </Alert>
         ) : (
           <>
@@ -96,12 +99,19 @@ export function AutoDetectScreen() {
             )}
             {view.prediction ? (
               <Stack spacing={1}>
-                <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+                <Stack
+                  direction="row"
+                  spacing={1}
+                  sx={{ alignItems: "center" }}
+                >
                   <Typography variant="body2" color="text.secondary">
                     Looks like
                   </Typography>
                   <Chip color="primary" label={view.prediction.exercise.name} />
-                  <Typography variant="body2" sx={{ ml: "auto", fontVariantNumeric: "tabular-nums" }}>
+                  <Typography
+                    variant="body2"
+                    sx={{ ml: "auto", fontVariantNumeric: "tabular-nums" }}
+                  >
                     {Math.round(view.prediction.confidence * 100)}%
                   </Typography>
                 </Stack>
@@ -117,14 +127,28 @@ export function AutoDetectScreen() {
               </Typography>
             )}
             {!camera.personDetected && (
-              <Chip color="warning" icon={<VideocamOffIcon />} label="No person detected" sx={{ alignSelf: "flex-start" }} />
+              <Chip
+                color="warning"
+                icon={<VideocamOffIcon />}
+                label="No person detected"
+                sx={{ alignSelf: "flex-start" }}
+              />
             )}
           </>
         )}
 
-        <Stack direction="row" spacing={1} useFlexGap sx={{ justifyContent: "flex-end", flexWrap: "wrap" }}>
+        <Stack
+          direction="row"
+          spacing={1}
+          useFlexGap
+          sx={{ justifyContent: "flex-end", flexWrap: "wrap" }}
+        >
           {view.status !== "no-data" && (
-            <Button color="error" onClick={() => void clearTraining()} sx={{ mr: "auto" }}>
+            <Button
+              color="error"
+              onClick={() => void clearTraining()}
+              sx={{ mr: "auto" }}
+            >
               Clear training data
             </Button>
           )}
@@ -132,7 +156,11 @@ export function AutoDetectScreen() {
             {view.status === "no-data" ? "Back to library" : "Cancel"}
           </Button>
           {view.ready && (
-            <Button variant="contained" startIcon={<PlayArrowIcon />} onClick={start}>
+            <Button
+              variant="contained"
+              startIcon={<PlayArrowIcon />}
+              onClick={start}
+            >
               Start {view.ready.name}
             </Button>
           )}

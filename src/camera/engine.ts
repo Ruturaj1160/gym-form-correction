@@ -34,7 +34,12 @@ const LOW_FPS_AFTER_MS = 5000;
 const PUBLISH_INTERVAL_MS = 66;
 const FPS_PUBLISH_INTERVAL_MS = 1000;
 
-export type CameraStatus = "starting" | "denied" | "error" | "loading-model" | "ready";
+export type CameraStatus =
+  | "starting"
+  | "denied"
+  | "error"
+  | "loading-model"
+  | "ready";
 
 export interface CameraState {
   status: CameraStatus;
@@ -149,7 +154,11 @@ export class AppEngine {
     this.camera.update({ status: "starting", error: null });
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: "user" },
+        video: {
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+          facingMode: "user",
+        },
         audio: false,
       });
       this.video.srcObject = stream;
@@ -172,7 +181,8 @@ export class AppEngine {
     if (!(await this.loadModel(this.camera.get().model))) {
       this.camera.update({
         status: "error",
-        error: "Couldn't load the pose model. Check your connection and try again.",
+        error:
+          "Couldn't load the pose model. Check your connection and try again.",
       });
       return;
     }
@@ -220,13 +230,19 @@ export class AppEngine {
   ): void {
     this.voice.enabled = prefs.voice;
     const tuned = applyCalibration(exercise, loadCalibration(exercise.id));
-    this.session = new Workout(tuned, prefs, performance.now(), (p) => this.onPhaseChange(p));
-    this.recorder = prefs.record ? new Recorder(exercise.id, exercise.name) : null;
+    this.session = new Workout(tuned, prefs, performance.now(), (p) =>
+      this.onPhaseChange(p),
+    );
+    this.recorder = prefs.record
+      ? new Recorder(exercise.id, exercise.name)
+      : null;
     this.onWorkoutDone = onDone;
     this.resetSetState();
     this.mode.set("workout");
     this.publishWorkout();
-    this.voice.say(`${exercise.name}. Set 1 of ${prefs.sets}. Go`, { interrupt: true });
+    this.voice.say(`${exercise.name}. Set 1 of ${prefs.sets}. Go`, {
+      interrupt: true,
+    });
   }
 
   restartSet(): void {
@@ -270,7 +286,9 @@ export class AppEngine {
       this.lastRestSecondSpoken = 0;
       this.restTotalMs = w.config.restSec * 1000;
       this.overlay.clear();
-      this.voice.say(`Set complete. Rest ${w.config.restSec} seconds`, { interrupt: true });
+      this.voice.say(`Set complete. Rest ${w.config.restSec} seconds`, {
+        interrupt: true,
+      });
       this.publishWorkout();
     } else if (phase === "active") {
       this.resetSetState();
@@ -328,7 +346,8 @@ export class AppEngine {
     }
     if (state.kind === "hold") {
       const tens = Math.floor(state.elapsedMs / 10_000);
-      if (tens > this.lastHoldTens && stillActive) this.voice.say(`${tens * 10} seconds`);
+      if (tens > this.lastHoldTens && stillActive)
+        this.voice.say(`${tens * 10} seconds`);
       this.lastHoldTens = Math.max(this.lastHoldTens, tens);
       return;
     }
@@ -349,9 +368,12 @@ export class AppEngine {
     onDone: (message: string, outcome: CalibrationOutcome) => void,
   ): void {
     this.voice.enabled = voiceEnabled;
-    this.voice.say(`Calibrating ${exercise.name}. Do two or three slow, full reps.`, {
-      interrupt: true,
-    });
+    this.voice.say(
+      `Calibrating ${exercise.name}. Do two or three slow, full reps.`,
+      {
+        interrupt: true,
+      },
+    );
     const now = performance.now();
     this.calib = new CalibrationSession(exercise, now, (message, outcome) => {
       this.calib = null;
@@ -466,7 +488,9 @@ export class AppEngine {
     if (!state) return;
 
     state.trackedPoints.forEach((pts) => this.overlay.drawHighlight(pts));
-    state.issues.forEach((i) => this.overlay.drawHighlight(i.points, BRAND.error));
+    state.issues.forEach((i) =>
+      this.overlay.drawHighlight(i.points, BRAND.error),
+    );
 
     // The set may have just ended inside update(); only keep live state for an active set.
     const stillActive = this.session?.phase === "active";
@@ -480,7 +504,8 @@ export class AppEngine {
       if (state.rep.event.kind === "full") this.lastFullRep = state.rep;
       force = true;
     }
-    if (force || now - this.lastPublish >= PUBLISH_INTERVAL_MS) this.publishWorkout();
+    if (force || now - this.lastPublish >= PUBLISH_INTERVAL_MS)
+      this.publishWorkout();
   }
 
   private updateFps(now: number): void {
@@ -493,9 +518,13 @@ export class AppEngine {
     const model = this.camera.get().model;
     this.lowFpsSince =
       this.fps < LOW_FPS && model !== "lite" ? (this.lowFpsSince ?? now) : null;
-    const lowFps = this.lowFpsSince !== null && now - this.lowFpsSince > LOW_FPS_AFTER_MS;
+    const lowFps =
+      this.lowFpsSince !== null && now - this.lowFpsSince > LOW_FPS_AFTER_MS;
 
-    if (lowFps !== this.camera.get().lowFps || now - this.lastFpsPublish >= FPS_PUBLISH_INTERVAL_MS) {
+    if (
+      lowFps !== this.camera.get().lowFps ||
+      now - this.lastFpsPublish >= FPS_PUBLISH_INTERVAL_MS
+    ) {
       this.lastFpsPublish = now;
       this.camera.update({ fps: Math.round(this.fps), lowFps });
     }

@@ -25,7 +25,10 @@ export class CalibrationSession {
   constructor(
     readonly exercise: RepExerciseDef,
     now: number,
-    private readonly onFinish: (message: string, outcome: CalibrationOutcome) => void,
+    private readonly onFinish: (
+      message: string,
+      outcome: CalibrationOutcome,
+    ) => void,
   ) {
     this.calibrator = new Calibrator(exercise);
     this.endsAt = now + DURATION_MS;

@@ -11,7 +11,9 @@ export function CameraProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     void engine.start();
   }, []);
-  return <EngineContext.Provider value={engine}>{children}</EngineContext.Provider>;
+  return (
+    <EngineContext.Provider value={engine}>{children}</EngineContext.Provider>
+  );
 }
 
 export function useEngine(): AppEngine {

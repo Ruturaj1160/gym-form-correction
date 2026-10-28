@@ -2,7 +2,14 @@ import Box from "@mui/material/Box";
 import type { ReactNode } from "react";
 
 /** Content readable by screen readers only. */
-export function VisuallyHidden({ children, ...rest }: { children: ReactNode; role?: string; "aria-live"?: "polite" | "assertive" }) {
+export function VisuallyHidden({
+  children,
+  ...rest
+}: {
+  children: ReactNode;
+  role?: string;
+  "aria-live"?: "polite" | "assertive";
+}) {
   return (
     <Box
       {...rest}

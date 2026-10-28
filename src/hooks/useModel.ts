@@ -18,7 +18,9 @@ export function useSwitchModel(): (model: PoseModel) => Promise<void> {
         notify(`Switched to the ${model} model.`, { severity: "success" });
       } else {
         updateSettings({ model: previous });
-        notify(`Couldn't load the ${model} model — still using ${previous}.`, { severity: "error" });
+        notify(`Couldn't load the ${model} model — still using ${previous}.`, {
+          severity: "error",
+        });
       }
     },
     [engine, notify],

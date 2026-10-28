@@ -24,7 +24,11 @@ import { useSwitchModel } from "../hooks/useModel";
 import { updatePrefs, usePrefs } from "../hooks/usePrefs";
 import { updateSettings, useSettings } from "../hooks/useSettings";
 import { clearAllCalibrations } from "../storage/calibration";
-import { clearSessions, listSessions, type WorkoutPrefs } from "../storage/sessions";
+import {
+  clearSessions,
+  listSessions,
+  type WorkoutPrefs,
+} from "../storage/sessions";
 import { POSE_MODELS, type ThemeMode } from "../storage/settings";
 import { clearSamples, loadSamples } from "../storage/training";
 
@@ -34,10 +38,22 @@ const MODEL_HELP: Record<PoseModel, string> = {
   heavy: "Most accurate — needs a fast computer.",
 };
 
-function Section({ title, subheader, children }: { title: string; subheader?: string; children: ReactNode }) {
+function Section({
+  title,
+  subheader,
+  children,
+}: {
+  title: string;
+  subheader?: string;
+  children: ReactNode;
+}) {
   return (
     <Card>
-      <CardHeader title={title} subheader={subheader} slotProps={{ title: { variant: "h6" } }} />
+      <CardHeader
+        title={title}
+        subheader={subheader}
+        slotProps={{ title: { variant: "h6" } }}
+      />
       <CardContent sx={{ pt: 0 }}>{children}</CardContent>
     </Card>
   );
@@ -76,16 +92,30 @@ function DefaultField({
       error={invalid}
       helperText={invalid ? `${min}–${max}` : " "}
       slotProps={{
-        input: { endAdornment: <InputAdornment position="end">{unit}</InputAdornment> },
+        input: {
+          endAdornment: <InputAdornment position="end">{unit}</InputAdornment>,
+        },
         htmlInput: { min, max, inputMode: "numeric" },
       }}
     />
   );
 }
 
-function DataRow({ title, description, action }: { title: string; description: string; action: ReactNode }) {
+function DataRow({
+  title,
+  description,
+  action,
+}: {
+  title: string;
+  description: string;
+  action: ReactNode;
+}) {
   return (
-    <Stack direction={{ xs: "column", sm: "row" }} spacing={1} sx={{ alignItems: { sm: "center" }, py: 1.5 }}>
+    <Stack
+      direction={{ xs: "column", sm: "row" }}
+      spacing={1}
+      sx={{ alignItems: { sm: "center" }, py: 1.5 }}
+    >
       <Box sx={{ flex: 1 }}>
         <Typography variant="subtitle2">{title}</Typography>
         <Typography variant="body2" color="text.secondary">
@@ -110,17 +140,29 @@ export default function SettingsScreen() {
   }));
 
   const clearWith = async (title: string, run: () => void, done: string) => {
-    const ok = await confirm({ title, message: "This can't be undone.", confirmLabel: "Delete", destructive: true });
+    const ok = await confirm({
+      title,
+      message: "This can't be undone.",
+      confirmLabel: "Delete",
+      destructive: true,
+    });
     if (!ok) return;
     run();
-    setCounts({ sessions: listSessions().length, samples: loadSamples().length });
+    setCounts({
+      sessions: listSessions().length,
+      samples: loadSamples().length,
+    });
     notify(done, { severity: "success" });
   };
 
   const gridSx = {
     display: "grid",
     gap: 2,
-    gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", md: "repeat(4, 1fr)" },
+    gridTemplateColumns: {
+      xs: "1fr",
+      sm: "repeat(2, 1fr)",
+      md: "repeat(4, 1fr)",
+    },
   } as const;
 
   return (
@@ -139,14 +181,20 @@ export default function SettingsScreen() {
             aria-label="Pose model"
           >
             {POSE_MODELS.map((m) => (
-              <ToggleButton key={m} value={m} sx={{ px: 3, textTransform: "capitalize" }}>
+              <ToggleButton
+                key={m}
+                value={m}
+                sx={{ px: 3, textTransform: "capitalize" }}
+              >
                 {m}
               </ToggleButton>
             ))}
           </ToggleButtonGroup>
           <Typography variant="body2" color="text.secondary">
             {MODEL_HELP[camera.model]}{" "}
-            {camera.fps ? `Last measured: ${camera.fps} FPS.` : "Frame rate is measured while tracking."}
+            {camera.fps
+              ? `Last measured: ${camera.fps} FPS.`
+              : "Frame rate is measured while tracking."}
           </Typography>
         </Stack>
       </Section>
@@ -155,7 +203,9 @@ export default function SettingsScreen() {
         <ToggleButtonGroup
           exclusive
           value={settings.themeMode}
-          onChange={(_, v: ThemeMode | null) => v && updateSettings({ themeMode: v })}
+          onChange={(_, v: ThemeMode | null) =>
+            v && updateSettings({ themeMode: v })
+          }
           aria-label="Theme"
         >
           <ToggleButton value="dark">
@@ -170,20 +220,61 @@ export default function SettingsScreen() {
         </ToggleButtonGroup>
       </Section>
 
-      <Section title="Workout defaults" subheader="Pre-filled when you start a workout.">
+      <Section
+        title="Workout defaults"
+        subheader="Pre-filled when you start a workout."
+      >
         <Box sx={gridSx}>
-          <DefaultField pref="sets" label="Sets" unit="sets" min={1} max={10} prefs={prefs} />
-          <DefaultField pref="targetReps" label="Reps per set" unit="reps" min={1} max={100} prefs={prefs} />
-          <DefaultField pref="targetHoldSec" label="Hold" unit="s" min={5} max={600} prefs={prefs} />
-          <DefaultField pref="restSec" label="Rest" unit="s" min={0} max={600} prefs={prefs} />
+          <DefaultField
+            pref="sets"
+            label="Sets"
+            unit="sets"
+            min={1}
+            max={10}
+            prefs={prefs}
+          />
+          <DefaultField
+            pref="targetReps"
+            label="Reps per set"
+            unit="reps"
+            min={1}
+            max={100}
+            prefs={prefs}
+          />
+          <DefaultField
+            pref="targetHoldSec"
+            label="Hold"
+            unit="s"
+            min={5}
+            max={600}
+            prefs={prefs}
+          />
+          <DefaultField
+            pref="restSec"
+            label="Rest"
+            unit="s"
+            min={0}
+            max={600}
+            prefs={prefs}
+          />
         </Box>
         <Stack>
           <FormControlLabel
-            control={<Switch checked={prefs.voice} onChange={(e) => updatePrefs({ voice: e.target.checked })} />}
+            control={
+              <Switch
+                checked={prefs.voice}
+                onChange={(e) => updatePrefs({ voice: e.target.checked })}
+              />
+            }
             label="Voice callouts"
           />
           <FormControlLabel
-            control={<Switch checked={prefs.record} onChange={(e) => updatePrefs({ record: e.target.checked })} />}
+            control={
+              <Switch
+                checked={prefs.record}
+                onChange={(e) => updatePrefs({ record: e.target.checked })}
+              />
+            }
             label="Record pose data (trains auto-detect)"
           />
         </Stack>
@@ -199,7 +290,13 @@ export default function SettingsScreen() {
                 color="error"
                 variant="outlined"
                 disabled={!counts.sessions}
-                onClick={() => void clearWith("Delete all workout history?", clearSessions, "Workout history deleted.")}
+                onClick={() =>
+                  void clearWith(
+                    "Delete all workout history?",
+                    clearSessions,
+                    "Workout history deleted.",
+                  )
+                }
               >
                 Clear history
               </Button>
@@ -213,7 +310,13 @@ export default function SettingsScreen() {
                 color="error"
                 variant="outlined"
                 disabled={!counts.samples}
-                onClick={() => void clearWith("Delete auto-detect training data?", clearSamples, "Training data deleted.")}
+                onClick={() =>
+                  void clearWith(
+                    "Delete auto-detect training data?",
+                    clearSamples,
+                    "Training data deleted.",
+                  )
+                }
               >
                 Clear training data
               </Button>
@@ -226,7 +329,13 @@ export default function SettingsScreen() {
               <Button
                 color="error"
                 variant="outlined"
-                onClick={() => void clearWith("Reset all calibrations?", clearAllCalibrations, "Calibrations reset.")}
+                onClick={() =>
+                  void clearWith(
+                    "Reset all calibrations?",
+                    clearAllCalibrations,
+                    "Calibrations reset.",
+                  )
+                }
               >
                 Reset calibrations
               </Button>
@@ -237,10 +346,12 @@ export default function SettingsScreen() {
 
       <Section title="About">
         <Stack spacing={1}>
-          <Typography variant="body2">Gym Form Correction v{__APP_VERSION__}</Typography>
+          <Typography variant="body2">
+            Gym Form Correction v{__APP_VERSION__}
+          </Typography>
           <Typography variant="body2" color="text.secondary">
-            Everything runs on your device. Your camera feed is never uploaded, and workout data stays in this
-            browser. Pose tracking by MediaPipe.
+            Everything runs on your device. Your camera feed is never uploaded,
+            and workout data stays in this browser. Pose tracking by MediaPipe.
           </Typography>
         </Stack>
       </Section>

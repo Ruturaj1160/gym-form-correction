@@ -38,7 +38,11 @@ const ALL = "__all__";
 const CHART_SESSIONS = 20;
 const DAY_MS = 86_400_000;
 type Range = "7d" | "30d" | "all";
-const RANGE_DAYS: Record<Range, number | null> = { "7d": 7, "30d": 30, all: null };
+const RANGE_DAYS: Record<Range, number | null> = {
+  "7d": 7,
+  "30d": 30,
+  all: null,
+};
 
 function sessionTotal(s: SessionRecord): number {
   return s.type === "hold"
@@ -47,8 +51,12 @@ function sessionTotal(s: SessionRecord): number {
 }
 
 function sessionForm(s: SessionRecord): number | null {
-  const scores = s.sets.map((set) => set.avgScore).filter((v): v is number => v !== null);
-  return scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : null;
+  const scores = s.sets
+    .map((set) => set.avgScore)
+    .filter((v): v is number => v !== null);
+  return scores.length
+    ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
+    : null;
 }
 
 function Charts({ sessions }: { sessions: SessionRecord[] }) {
@@ -89,7 +97,9 @@ function Charts({ sessions }: { sessions: SessionRecord[] }) {
             <LineChart
               height={220}
               xAxis={xAxis}
-              yAxis={[{ min: 0, max: 100, valueFormatter: (v: number) => `${v}%` }]}
+              yAxis={[
+                { min: 0, max: 100, valueFormatter: (v: number) => `${v}%` },
+              ]}
               series={[
                 {
                   data: forms,
@@ -122,8 +132,14 @@ function SessionDetails({ s }: { s: SessionRecord }) {
         {s.sets.map((set, i) => (
           <TableRow key={i}>
             <TableCell>{i + 1}</TableCell>
-            <TableCell>{isHold ? fmtClock(set.holdMs ?? 0, 0) : set.reps}</TableCell>
-            {!isHold && <TableCell>{set.avgScore === null ? "--" : `${set.avgScore}%`}</TableCell>}
+            <TableCell>
+              {isHold ? fmtClock(set.holdMs ?? 0, 0) : set.reps}
+            </TableCell>
+            {!isHold && (
+              <TableCell>
+                {set.avgScore === null ? "--" : `${set.avgScore}%`}
+              </TableCell>
+            )}
             <TableCell align="right">{fmtClock(set.durationMs, 0)}</TableCell>
           </TableRow>
         ))}
@@ -137,22 +153,28 @@ export default function HistoryScreen() {
   const { setTab } = useScreen();
   const confirm = useConfirm();
   const notify = useNotify();
-  const [exerciseId, setExerciseId] = useState(() => sessions[0]?.exerciseId ?? ALL);
+  const [exerciseId, setExerciseId] = useState(
+    () => sessions[0]?.exerciseId ?? ALL,
+  );
   const [range, setRange] = useState<Range>("30d");
   const [expanded, setExpanded] = useState<string | null>(null);
 
   const exercises = useMemo(() => {
     const m = new Map<string, string>();
-    for (const s of sessions) if (!m.has(s.exerciseId)) m.set(s.exerciseId, s.exerciseName);
+    for (const s of sessions)
+      if (!m.has(s.exerciseId)) m.set(s.exerciseId, s.exerciseName);
     return [...m];
   }, [sessions]);
 
   const days = RANGE_DAYS[range];
   const since = days === null ? 0 : Date.now() - days * DAY_MS;
   const filtered = sessions.filter(
-    (s) => (exerciseId === ALL || s.exerciseId === exerciseId) && s.startedAt >= since,
+    (s) =>
+      (exerciseId === ALL || s.exerciseId === exerciseId) &&
+      s.startedAt >= since,
   );
-  const chartData = exerciseId === ALL ? [] : filtered.slice(0, CHART_SESSIONS).reverse();
+  const chartData =
+    exerciseId === ALL ? [] : filtered.slice(0, CHART_SESSIONS).reverse();
 
   const clearAll = async () => {
     const ok = await confirm({
@@ -185,11 +207,21 @@ export default function HistoryScreen() {
 
   return (
     <Stack spacing={3}>
-      <Stack direction="row" spacing={2} sx={{ alignItems: "center", flexWrap: "wrap" }} useFlexGap>
+      <Stack
+        direction="row"
+        spacing={2}
+        sx={{ alignItems: "center", flexWrap: "wrap" }}
+        useFlexGap
+      >
         <Typography variant="h4" component="h1" sx={{ flex: 1 }}>
           History
         </Typography>
-        <Button color="error" variant="outlined" startIcon={<DeleteSweepIcon />} onClick={() => void clearAll()}>
+        <Button
+          color="error"
+          variant="outlined"
+          startIcon={<DeleteSweepIcon />}
+          onClick={() => void clearAll()}
+        >
           Clear history
         </Button>
       </Stack>
@@ -246,20 +278,42 @@ export default function HistoryScreen() {
                     <ListItemText
                       primary={s.exerciseName}
                       secondary={`${fmtDateTime(s.startedAt)} · ${s.sets
-                        .map((set) => (isHold ? fmtClock(set.holdMs ?? 0, 0) : set.reps))
+                        .map((set) =>
+                          isHold ? fmtClock(set.holdMs ?? 0, 0) : set.reps,
+                        )
                         .join(" / ")}`}
                     />
-                    <Stack direction="row" spacing={1} sx={{ alignItems: "center", ml: 1 }}>
+                    <Stack
+                      direction="row"
+                      spacing={1}
+                      sx={{ alignItems: "center", ml: 1 }}
+                    >
                       <Chip
                         size="small"
-                        label={isHold ? fmtClock(sessionTotal(s) * 1000, 0) : `${sessionTotal(s)} reps`}
+                        label={
+                          isHold
+                            ? fmtClock(sessionTotal(s) * 1000, 0)
+                            : `${sessionTotal(s)} reps`
+                        }
                       />
-                      {form !== null && <Chip size="small" label={`${form}%`} color={formColor(form)} />}
+                      {form !== null && (
+                        <Chip
+                          size="small"
+                          label={`${form}%`}
+                          color={formColor(form)}
+                        />
+                      )}
                       {open ? <ExpandLessIcon /> : <ExpandMoreIcon />}
                     </Stack>
                   </ListItemButton>
                   <Collapse in={open} unmountOnExit>
-                    <Box sx={{ px: 2, borderBottom: i < filtered.length - 1 ? 1 : 0, borderColor: "divider" }}>
+                    <Box
+                      sx={{
+                        px: 2,
+                        borderBottom: i < filtered.length - 1 ? 1 : 0,
+                        borderColor: "divider",
+                      }}
+                    >
                       <SessionDetails s={s} />
                     </Box>
                   </Collapse>

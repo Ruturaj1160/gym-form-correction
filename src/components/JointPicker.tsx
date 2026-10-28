@@ -81,7 +81,11 @@ export function JointPicker({ a, b, c, onChange, error }: Props) {
   );
 
   return (
-    <Stack direction={{ xs: "column", sm: "row" }} spacing={3} sx={{ alignItems: "center" }}>
+    <Stack
+      direction={{ xs: "column", sm: "row" }}
+      spacing={3}
+      sx={{ alignItems: "center" }}
+    >
       <Box
         component="svg"
         viewBox="0 0 120 200"
@@ -89,7 +93,14 @@ export function JointPicker({ a, b, c, onChange, error }: Props) {
         aria-label={`Angle measured at ${JOINT_LABEL[b]}, between ${JOINT_LABEL[a]} and ${JOINT_LABEL[c]}`}
         sx={{ width: (t) => t.spacing(18), flexShrink: 0 }}
       >
-        <circle cx={60} cy={20} r={12} fill="none" stroke={muted} strokeWidth={3} />
+        <circle
+          cx={60}
+          cy={20}
+          r={12}
+          fill="none"
+          stroke={muted}
+          strokeWidth={3}
+        />
         {BONES.map(([p, q]) => (
           <line
             key={`${p}-${q}`}

@@ -44,7 +44,9 @@ export function SnackbarProvider({ children }: { children: ReactNode }) {
         key={message?.key}
         open={open}
         onClose={(_, reason) => reason !== "clickaway" && close()}
-        autoHideDuration={message?.autoHideMs === undefined ? 4000 : message.autoHideMs}
+        autoHideDuration={
+          message?.autoHideMs === undefined ? 4000 : message.autoHideMs
+        }
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
         sx={{ mb: { xs: 8, md: 0 } }}
       >
